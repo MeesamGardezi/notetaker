@@ -19,7 +19,10 @@ const tierRoutes = require('./routes/tier.routes');
 // Create Express app
 const app = express();
 
-// Set security headers but completely disable restrictive policies
+// Enable compression early in the pipeline
+app.use(compression());
+
+// Disable helmet's restrictive policies for development convenience
 app.use(
   helmet({
     contentSecurityPolicy: false,
@@ -29,44 +32,7 @@ app.use(
   })
 );
 
-// Set proper MIME types for specific file extensions
-app.use((req, res, next) => {
-  const url = req.url.split('?')[0];
-  const ext = path.extname(url).toLowerCase();
-  
-  if (ext === '.js') {
-    res.type('application/javascript');
-  } else if (ext === '.css') {
-    res.type('text/css');
-  }
-  
-  next();
-});
-
-// Enable compression
-app.use(compression());
-
-// IMPORTANT: Serve static files BEFORE parsers and other middleware
-app.use(express.static(path.join(__dirname, '../public'), {
-  setHeaders: (res, filePath) => {
-    if (path.extname(filePath) === '.js') {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (path.extname(filePath) === '.css') {
-      res.setHeader('Content-Type', 'text/css');
-    }
-  }
-}));
-
-// Parse JSON request body
-app.use(express.json({ limit: '10mb' }));
-
-// Parse URL-encoded request body
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Parse cookies
-app.use(cookieParser());
-
-// Enable CORS - make it very permissive
+// CORS configuration - keep it permissive
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -78,6 +44,32 @@ app.use(cors({
 if (config.environment !== 'test') {
   app.use(morgan(config.environment === 'development' ? 'dev' : 'combined'));
 }
+
+// CRITICAL: Serve static files with proper MIME types
+// This must come BEFORE any API routes or middleware that might catch these requests
+app.use(express.static(path.join(__dirname, '../public'), {
+  setHeaders: (res, filePath) => {
+    const ext = path.extname(filePath).toLowerCase();
+    if (ext === '.js') {
+      res.set('Content-Type', 'application/javascript');
+    } else if (ext === '.css') {
+      res.set('Content-Type', 'text/css');
+    } else if (ext === '.html') {
+      res.set('Content-Type', 'text/html');
+    } else if (ext === '.json') {
+      res.set('Content-Type', 'application/json');
+    }
+  }
+}));
+
+// Parse cookies
+app.use(cookieParser());
+
+// Parse JSON request body
+app.use(express.json({ limit: '10mb' }));
+
+// Parse URL-encoded request body
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Set up view engine
 app.set('view engine', 'ejs');
@@ -91,15 +83,15 @@ app.use('/api/notes', noteRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/tiers', tierRoutes);
 
-// Serve index.html for all other routes (for SPA)
+// Serve index.html for all other routes (SPA fallback)
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../public/index.html'));
 });
 
-// 404 handler
+// 404 handler for API routes
 app.use(notFound);
 
-// Error handler
+// Global error handler
 app.use(errorHandler);
 
 module.exports = app;
