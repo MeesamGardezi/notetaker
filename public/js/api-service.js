@@ -20,13 +20,23 @@ const handleResponse = async (response) => {
   const isJson = contentType && contentType.includes('application/json');
   
   // Parse response based on content type
-  const data = isJson ? await response.json() : await response.text();
+  let data;
+  try {
+    data = isJson ? await response.json() : await response.text();
+  } catch (error) {
+    console.warn('Failed to parse response:', error);
+    data = isJson ? {} : '';
+  }
   
   // Check if response is OK
   if (!response.ok) {
     // Try to extract error message from response data
-    const errorMessage = isJson && data.message ? data.message : 'API request failed';
-    throw new Error(errorMessage);
+    const errorMessage = isJson && data && data.message ? data.message : `API request failed with status ${response.status}`;
+    const error = new Error(errorMessage);
+    error.status = response.status;
+    error.response = response;
+    error.data = data;
+    throw error;
   }
   
   return data;
@@ -157,7 +167,9 @@ const apiService = {
               resolve(xhr.responseText);
             }
           } else {
-            reject(new Error(xhr.statusText || 'Upload failed'));
+            const errorMsg = `Upload failed with status ${xhr.status}`;
+            console.error(errorMsg);
+            reject(new Error(errorMsg));
           }
         };
         
@@ -183,6 +195,15 @@ const apiService = {
       console.error(`File upload to ${endpoint} failed:`, error);
       throw error;
     }
+  },
+  
+  /**
+   * Check if error is an authentication error (401)
+   * @param {Error} error - Error object
+   * @returns {boolean} - Whether error is an authentication error
+   */
+  isAuthError: (error) => {
+    return error && (error.status === 401 || (error.response && error.response.status === 401));
   }
 };
 

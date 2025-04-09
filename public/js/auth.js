@@ -39,8 +39,20 @@ const authService = (() => {
           }
         });
         
-        // Check if user is already authenticated
-        await verifyToken();
+        // Check if user is already authenticated - this is optional
+        try {
+          await verifyToken();
+        } catch (error) {
+          // If verification fails with 401, this is expected when not logged in
+          if (error.message && error.message.includes('Authentication required')) {
+            console.log('No active session found, user needs to log in');
+          } else {
+            // For other errors, log but don't throw
+            console.warn('Token verification issue:', error.message);
+          }
+          // Ensure we're in a signed-out state
+          handleSignOut();
+        }
         
       } catch (error) {
         console.error('Failed to initialize auth service:', error);
@@ -99,9 +111,9 @@ const authService = (() => {
         
         return false;
       } catch (error) {
-        console.error('Token verification failed:', error);
+        console.log('Token verification failed:', error);
         handleSignOut();
-        return false;
+        throw error; // Re-throw so caller can handle it
       }
     };
     

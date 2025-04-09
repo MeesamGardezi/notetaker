@@ -48,25 +48,36 @@ const fetchFirebaseConfig = async () => {
     }
   };
   
-  // Initialize Firebase
-  let firebaseApp = null;
-  let firebaseAuth = null;
-  let firebaseFirestore = null;
-  let firebaseStorage = null;
-  
-  const initializeFirebase = async () => {
-    try {
-      // Only initialize Firebase once
-      if (firebaseApp) {
-        console.log('Firebase already initialized, reusing existing instance');
-        return {
-          app: firebaseApp,
-          auth: firebaseAuth,
-          firestore: firebaseFirestore,
-          storage: firebaseStorage
-        };
-      }
-  
+// Initialize Firebase
+let firebaseApp = null;
+let firebaseAuth = null;
+let firebaseFirestore = null;
+let firebaseStorage = null;
+let isInitializing = false;
+let initializationPromise = null;
+
+const initializeFirebase = async () => {
+  try {
+    // If already initialized, return the existing instance
+    if (firebaseApp) {
+      console.log('Firebase already initialized, reusing existing instance');
+      return {
+        app: firebaseApp,
+        auth: firebaseAuth,
+        firestore: firebaseFirestore,
+        storage: firebaseStorage
+      };
+    }
+
+    // If initialization is in progress, wait for it to complete
+    if (isInitializing && initializationPromise) {
+      console.log('Firebase initialization in progress, waiting for completion');
+      return await initializationPromise;
+    }
+
+    // Set flag and create promise for initialization
+    isInitializing = true;
+    initializationPromise = (async () => {
       // Fetch configuration
       const config = await fetchFirebaseConfig();
       console.log('Firebase config to use:', { ...config, apiKey: '***HIDDEN***' });
@@ -90,9 +101,10 @@ const fetchFirebaseConfig = async () => {
       console.log('Initializing Firebase storage...');
       firebaseStorage = firebase.storage();
       
-      // Configure Firestore
+      // Configure Firestore with merge option to prevent override errors
       firebaseFirestore.settings({
-        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
+        merge: true
       });
       
       // Enable offline persistence if browser supports it
@@ -120,29 +132,28 @@ const fetchFirebaseConfig = async () => {
         firestore: firebaseFirestore,
         storage: firebaseStorage
       };
-    } catch (error) {
-      console.error('Error initializing Firebase:', error);
-      throw error;
-    }
-  };
-  
-  // Initialize Firebase when the page loads
-  document.addEventListener('DOMContentLoaded', async () => {
-    try {
-      console.log('Attempting to initialize Firebase on page load...');
-      await initializeFirebase();
-    } catch (error) {
-      console.error('Failed to initialize Firebase on page load:', error);
-    }
-  });
-  
-  // Export Firebase instance and initialization function
-  window.firebaseInit = {
-    initialize: initializeFirebase,
-    getServices: () => ({
-      app: firebaseApp,
-      auth: firebaseAuth,
-      firestore: firebaseFirestore,
-      storage: firebaseStorage
-    })
-  };
+    })();
+
+    // Await initialization promise
+    const result = await initializationPromise;
+    isInitializing = false;
+    
+    return result;
+  } catch (error) {
+    isInitializing = false;
+    initializationPromise = null;
+    console.error('Error initializing Firebase:', error);
+    throw error;
+  }
+};
+
+// Export Firebase instance and initialization function
+window.firebaseInit = {
+  initialize: initializeFirebase,
+  getServices: () => ({
+    app: firebaseApp,
+    auth: firebaseAuth,
+    firestore: firebaseFirestore,
+    storage: firebaseStorage
+  })
+};
