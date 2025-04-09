@@ -29,7 +29,7 @@ const config = {
   
   // JWT configuration for authentication
   jwt: {
-    secret: process.env.JWT_SECRET || 'notes-app-super-secret-key-change-in-production',
+    secret: process.env.JWT_SECRET || 'strongkey',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d'
   },
   
@@ -82,7 +82,7 @@ const environmentConfigs = {
       port: 3001
     },
     jwt: {
-      secret: 'test-secret-key',
+      secret: 'strongkey',
       expiresIn: '1h'
     }
   },

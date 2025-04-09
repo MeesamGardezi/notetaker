@@ -45,23 +45,6 @@ if (config.environment !== 'test') {
   app.use(morgan(config.environment === 'development' ? 'dev' : 'combined'));
 }
 
-// CRITICAL: Serve static files with proper MIME types
-// This must come BEFORE any API routes or middleware that might catch these requests
-app.use(express.static(path.join(__dirname, '../public'), {
-  setHeaders: (res, filePath) => {
-    const ext = path.extname(filePath).toLowerCase();
-    if (ext === '.js') {
-      res.set('Content-Type', 'application/javascript');
-    } else if (ext === '.css') {
-      res.set('Content-Type', 'text/css');
-    } else if (ext === '.html') {
-      res.set('Content-Type', 'text/html');
-    } else if (ext === '.json') {
-      res.set('Content-Type', 'application/json');
-    }
-  }
-}));
-
 // Parse cookies
 app.use(cookieParser());
 
@@ -74,6 +57,41 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Set up view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../views'));
+
+// IMPORTANT: Configure express.static to serve files with proper MIME types
+const staticOptions = {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (filePath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    } else if (filePath.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html');
+    } else if (filePath.endsWith('.json')) {
+      res.setHeader('Content-Type', 'application/json');
+    } else if (filePath.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+    } else if (filePath.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (filePath.endsWith('.gif')) {
+      res.setHeader('Content-Type', 'image/gif');
+    } else if (filePath.endsWith('.woff')) {
+      res.setHeader('Content-Type', 'font/woff');
+    } else if (filePath.endsWith('.woff2')) {
+      res.setHeader('Content-Type', 'font/woff2');
+    } else if (filePath.endsWith('.ttf')) {
+      res.setHeader('Content-Type', 'font/ttf');
+    } else if (filePath.endsWith('.eot')) {
+      res.setHeader('Content-Type', 'application/vnd.ms-fontobject');
+    }
+  }
+};
+
+// CRITICAL: Serve static files with proper MIME types
+// This must come BEFORE any API routes or middleware that might catch these requests
+app.use(express.static(path.join(__dirname, '../public'), staticOptions));
 
 // API routes
 app.use('/api/auth', authRoutes);

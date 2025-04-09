@@ -5,6 +5,9 @@
 
 const authService = require('../services/auth.service');
 const { validationResult } = require('express-validator');
+const { admin, db } = require('../config/firebase-admin');
+const config = require('../config/config');
+const jwt = require('jsonwebtoken');
 
 /**
  * Register a new user
@@ -91,6 +94,107 @@ const login = async (req, res, next) => {
       });
     }
     
+    next(error);
+  }
+};
+
+/**
+ * Login with Google
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+const loginWithGoogle = async (req, res, next) => {
+  try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { idToken } = req.body;
+
+    // Verify Google ID token
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      const uid = decodedToken.uid;
+      
+      // Get user record from Firebase Auth
+      const userRecord = await admin.auth().getUser(uid);
+      
+      // Check if user exists in Firestore
+      const userRef = db.collection('users').doc(uid);
+      const userDoc = await userRef.get();
+      
+      if (!userDoc.exists) {
+        // Create user document if it doesn't exist
+        const userData = {
+          email: userRecord.email,
+          displayName: userRecord.displayName || 'User',
+          photoURL: userRecord.photoURL || null,
+          accountTier: 'free',
+          status: 'active',
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          lastLoginAt: admin.firestore.FieldValue.serverTimestamp(),
+          moduleCount: 0,
+          noteCount: 0,
+          storageUsed: 0
+        };
+
+        await userRef.set(userData);
+      } else {
+        // Update last login timestamp
+        await userRef.update({
+          lastLoginAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      
+      // Get current user data
+      const currentUserDoc = userDoc.exists ? userDoc.data() : await userRef.get().then(doc => doc.data());
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { 
+          uid: uid,
+          email: userRecord.email,
+          tier: currentUserDoc.accountTier || 'free'
+        }, 
+        config.jwt.secret, 
+        { expiresIn: config.jwt.expiresIn }
+      );
+      
+      // Send auth token in HTTP-only cookie
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      // Return success response
+      res.status(200).json({
+        success: true,
+        message: 'Google login successful',
+        data: {
+          user: {
+            uid: uid,
+            email: userRecord.email,
+            displayName: userRecord.displayName || 'User',
+            photoURL: userRecord.photoURL,
+            accountTier: currentUserDoc.accountTier || 'free'
+          }
+        }
+      });
+    } catch (error) {
+      // Handle Firebase token verification errors
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid Google token',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+  } catch (error) {
     next(error);
   }
 };
@@ -225,6 +329,7 @@ const deleteAccount = async (req, res, next) => {
 module.exports = {
   register,
   login,
+  loginWithGoogle,
   logout,
   verifyToken,
   requestPasswordReset,
