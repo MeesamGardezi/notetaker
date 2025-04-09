@@ -1,0 +1,105 @@
+<!-- Register Page -->
+<div class="auth-page register-page">
+    <div class="auth-container">
+        <div class="auth-logo">
+            <i class="fas fa-book-open"></i>
+            <span>NoteTaker</span>
+        </div>
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>Create an Account</h2>
+                <p>Join NoteTaker and organize your notes</p>
+            </div>
+            
+            <div class="alert alert-danger d-none" id="register-error-alert" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span id="register-error-message">Registration error</span>
+            </div>
+            
+            <form id="register-form">
+                <div class="mb-3">
+                    <label for="register-name" class="form-label">Display Name</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input type="text" class="form-control" id="register-name" placeholder="Enter your name" required minlength="2" maxlength="50">
+                    </div>
+                    <div class="form-text" id="name-feedback"></div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="register-email" class="form-label">Email address</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input type="email" class="form-control" id="register-email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-text" id="email-feedback"></div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="register-password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="form-control" id="register-password" placeholder="Create a password" required minlength="8">
+                        <button class="btn btn-outline-secondary toggle-password" type="button">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength-meter mt-2">
+                        <div class="progress">
+                            <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <small>Weak</small>
+                            <small>Medium</small>
+                            <small>Strong</small>
+                        </div>
+                    </div>
+                    <ul class="password-requirements small mt-2">
+                        <li id="req-length"><i class="fas fa-times-circle text-danger"></i> At least 8 characters</li>
+                        <li id="req-uppercase"><i class="fas fa-times-circle text-danger"></i> At least one uppercase letter</li>
+                        <li id="req-lowercase"><i class="fas fa-times-circle text-danger"></i> At least one lowercase letter</li>
+                        <li id="req-number"><i class="fas fa-times-circle text-danger"></i> At least one number</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="register-confirm-password" class="form-label">Confirm Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="form-control" id="register-confirm-password" placeholder="Confirm your password" required>
+                    </div>
+                    <div class="form-text" id="password-match-feedback"></div>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="terms-check" required>
+                    <label class="form-check-label" for="terms-check">
+                        I agree to the <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100" id="register-button">
+                    <span class="button-text">Create Account</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
+            </form>
+            
+            <div class="auth-divider">
+                <span>OR</span>
+            </div>
+            
+            <button class="btn btn-outline-secondary w-100 social-login-button" id="google-signup-button">
+                <img src="images/google-icon.svg" alt="Google" class="social-icon">
+                <span>Sign up with Google</span>
+            </button>
+            
+            <div class="auth-footer">
+                <p>Already have an account? <a href="#login">Sign in</a></p>
+            </div>
+        </div>
+        
+        <div class="auth-info">
+            <a href="#" class="back-to-home"><i class="fas fa-arrow-left me-2"></i>Back to Home</a>
+        </div>
+    </div>
+</div>

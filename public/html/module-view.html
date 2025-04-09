@@ -1,0 +1,166 @@
+<!-- Module View Page -->
+<div class="module-view-page">
+    <!-- Main Content Area -->
+    <div class="module-container">
+        <!-- Module Header -->
+        <div class="module-header">
+            <div class="module-info">
+                <h1 id="module-title">Module Title</h1>
+                <p id="module-description">Module description goes here. This provides an overview of the module's purpose and contents.</p>
+            </div>
+            <div class="module-actions">
+                <div class="btn-group">
+                    <button id="new-note-btn" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i> New Note
+                    </button>
+                    <button id="edit-module-btn" class="btn btn-outline-primary">
+                        <i class="fas fa-edit me-1"></i> Edit Module
+                    </button>
+                    <button id="delete-module-btn" class="btn btn-outline-danger">
+                        <i class="fas fa-trash-alt me-1"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module Content -->
+        <div class="module-content">
+            <!-- Notes Filter and Sort -->
+            <div class="notes-controls">
+                <div class="notes-search">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="notes-search-input" placeholder="Search notes...">
+                    </div>
+                </div>
+                <div class="notes-sort">
+                    <div class="btn-group">
+                        <button class="btn btn-outline-secondary">
+                            <i class="fas fa-sort me-1"></i> Sort
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item sort-option" data-sort="position"><i class="fas fa-arrows-alt me-2"></i>Custom Order</a></li>
+                            <li><a class="dropdown-item sort-option" data-sort="title-asc"><i class="fas fa-sort-alpha-down me-2"></i>Title (A-Z)</a></li>
+                            <li><a class="dropdown-item sort-option" data-sort="title-desc"><i class="fas fa-sort-alpha-down-alt me-2"></i>Title (Z-A)</a></li>
+                            <li><a class="dropdown-item sort-option" data-sort="date-newest"><i class="fas fa-clock me-2"></i>Newest First</a></li>
+                            <li><a class="dropdown-item sort-option" data-sort="date-oldest"><i class="fas fa-history me-2"></i>Oldest First</a></li>
+                        </ul>
+                    </div>
+                    <div class="btn-group ms-2">
+                        <button id="view-grid-btn" class="btn btn-outline-secondary active" title="Grid View">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <button id="view-list-btn" class="btn btn-outline-secondary" title="List View">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Container -->
+            <div class="notes-container">
+                <!-- Notes Grid View (default) -->
+                <div id="notes-grid" class="notes-grid">
+                    <!-- Notes will be dynamically inserted here -->
+                    <div class="note-card-placeholder">Loading notes...</div>
+                </div>
+
+                <!-- Notes List View (alternative) -->
+                <div id="notes-list" class="notes-list d-none">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Last Updated</th>
+                                <th>Media</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notes-table-body">
+                            <!-- Notes will be dynamically inserted here -->
+                            <tr>
+                                <td colspan="4" class="text-center">Loading notes...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-notes-state" class="empty-state d-none">
+                    <div class="empty-state-content">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-sticky-note"></i>
+                        </div>
+                        <h3>No Notes Yet</h3>
+                        <p>Get started by creating your first note in this module.</p>
+                        <button id="empty-state-create-btn" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i> Create Note
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Note Template for Grid View -->
+        <template id="note-card-template">
+            <div class="note-card" data-note-id="">
+                <div class="note-card-header">
+                    <h3 class="note-title"></h3>
+                    <div class="note-actions">
+                        <button class="btn btn-sm btn-link edit-note-btn" title="Edit Note">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-link delete-note-btn" title="Delete Note">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="note-card-body">
+                    <div class="note-preview"></div>
+                </div>
+                <div class="note-card-footer">
+                    <div class="note-meta">
+                        <span class="note-date"></span>
+                        <span class="note-media-count d-none">
+                            <i class="fas fa-paperclip me-1"></i>
+                            <span class="media-count"></span>
+                        </span>
+                    </div>
+                    <a href="#" class="btn btn-sm btn-primary open-note-btn">Open</a>
+                </div>
+            </div>
+        </template>
+
+        <!-- Note Template for List View -->
+        <template id="note-row-template">
+            <tr class="note-row" data-note-id="">
+                <td class="note-title-cell">
+                    <a href="#" class="note-title-link"></a>
+                </td>
+                <td class="note-date-cell"></td>
+                <td class="note-media-cell">
+                    <span class="note-media-count d-none">
+                        <i class="fas fa-paperclip me-1"></i>
+                        <span class="media-count"></span>
+                    </span>
+                </td>
+                <td class="note-actions-cell">
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-primary open-note-btn">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary edit-note-btn">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-note-btn">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </template>
+    </div>
+</div>

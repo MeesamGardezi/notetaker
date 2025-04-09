@@ -1,0 +1,275 @@
+<!-- Note Editor Page -->
+<div class="note-editor-page">
+    <!-- Editor Container -->
+    <div class="editor-container">
+        <!-- Editor Header -->
+        <div class="editor-header">
+            <div class="breadcrumb-nav">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#modules" id="editor-modules-link">Modules</a></li>
+                        <li class="breadcrumb-item"><a href="#" id="editor-module-link">Module Name</a></li>
+                        <li class="breadcrumb-item active" aria-current="page" id="editor-mode">New Note</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="editor-actions">
+                <div class="btn-group">
+                    <button id="save-note-btn" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Save
+                    </button>
+                    <button id="cancel-edit-btn" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i> Cancel
+                    </button>
+                    <button id="editor-attachment-btn" class="btn btn-outline-primary">
+                        <i class="fas fa-paperclip me-1"></i> Attachments
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor Form -->
+        <div class="editor-content">
+            <form id="note-editor-form">
+                <div class="mb-3">
+                    <input type="text" class="form-control form-control-lg" id="editor-title" placeholder="Note Title" required>
+                </div>
+                
+                <!-- Editor Toolbar -->
+                <div class="editor-toolbar" id="editor-toolbar">
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-button" data-format="bold" title="Bold">
+                            <i class="fas fa-bold"></i>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="italic" title="Italic">
+                            <i class="fas fa-italic"></i>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="underline" title="Underline">
+                            <i class="fas fa-underline"></i>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="strike" title="Strikethrough">
+                            <i class="fas fa-strikethrough"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-button" data-format="header" data-value="1" title="Heading 1">
+                            <i class="fas fa-heading"></i><sup>1</sup>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="header" data-value="2" title="Heading 2">
+                            <i class="fas fa-heading"></i><sup>2</sup>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="header" data-value="3" title="Heading 3">
+                            <i class="fas fa-heading"></i><sup>3</sup>
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-button" data-format="list" data-value="bullet" title="Bullet List">
+                            <i class="fas fa-list-ul"></i>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="list" data-value="ordered" title="Numbered List">
+                            <i class="fas fa-list-ol"></i>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="list" data-value="check" title="Checklist">
+                            <i class="fas fa-tasks"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-button" data-format="indent" data-value="-1" title="Decrease Indent">
+                            <i class="fas fa-outdent"></i>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="indent" data-value="+1" title="Increase Indent">
+                            <i class="fas fa-indent"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-button" data-format="align" data-value="left" title="Align Left">
+                            <i class="fas fa-align-left"></i>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="align" data-value="center" title="Align Center">
+                            <i class="fas fa-align-center"></i>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="align" data-value="right" title="Align Right">
+                            <i class="fas fa-align-right"></i>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="align" data-value="justify" title="Justify">
+                            <i class="fas fa-align-justify"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-button" data-format="link" title="Insert Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="image" title="Insert Image">
+                            <i class="fas fa-image"></i>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="code-block" title="Code Block">
+                            <i class="fas fa-code"></i>
+                        </button>
+                        <button type="button" class="toolbar-button" data-format="blockquote" title="Blockquote">
+                            <i class="fas fa-quote-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-group">
+                        <button type="button" class="toolbar-button" data-format="clean" title="Clear Formatting">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Editor Container -->
+                <div class="editor-main">
+                    <div id="quill-editor"></div>
+                </div>
+                
+                <!-- Hidden inputs for form data -->
+                <input type="hidden" id="editor-note-id">
+                <input type="hidden" id="editor-module-id">
+                <input type="hidden" id="editor-content">
+            </form>
+        </div>
+        
+        <!-- Attachments Panel (collapsed by default) -->
+        <div class="editor-attachments-panel" id="editor-attachments-panel">
+            <div class="attachments-header">
+                <h3>Attachments <span id="editor-media-count">(0)</span></h3>
+                <div class="attachments-actions">
+                    <button id="editor-add-attachment-btn" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i> Add File
+                    </button>
+                    <button id="editor-close-attachments-btn" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="attachments-content">
+                <div id="editor-media-items">
+                    <!-- Media items will be dynamically inserted here -->
+                    <div class="empty-attachments-message" id="empty-attachments-message">
+                        <p>No attachments yet. Click "Add File" to attach files to this note.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Link Insert Modal -->
+    <div class="modal fade" id="link-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Insert Link</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="link-form">
+                        <div class="mb-3">
+                            <label for="link-text" class="form-label">Link Text</label>
+                            <input type="text" class="form-control" id="link-text" placeholder="Display text">
+                        </div>
+                        <div class="mb-3">
+                            <label for="link-url" class="form-label">URL</label>
+                            <input type="url" class="form-control" id="link-url" placeholder="https://example.com" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="link-new-tab">
+                            <label class="form-check-label" for="link-new-tab">Open in new tab</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="insert-link-btn">Insert</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image Insert Modal -->
+    <div class="modal fade" id="image-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Insert Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="image-source-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="url-tab" data-bs-toggle="tab" data-bs-target="#url-content" type="button" role="tab" aria-controls="url-content" aria-selected="true">URL</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-content" type="button" role="tab" aria-controls="upload-content" aria-selected="false">Upload</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="attachments-tab" data-bs-toggle="tab" data-bs-target="#attachments-content" type="button" role="tab" aria-controls="attachments-content" aria-selected="false">Attachments</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3" id="image-source-content">
+                        <div class="tab-pane fade show active" id="url-content" role="tabpanel" aria-labelledby="url-tab">
+                            <form id="image-url-form">
+                                <div class="mb-3">
+                                    <label for="image-url" class="form-label">Image URL</label>
+                                    <input type="url" class="form-control" id="image-url" placeholder="https://example.com/image.jpg" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="image-alt" class="form-label">Alt Text</label>
+                                    <input type="text" class="form-control" id="image-alt" placeholder="Image description">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="upload-content" role="tabpanel" aria-labelledby="upload-tab">
+                            <form id="image-upload-form">
+                                <div class="mb-3">
+                                    <label for="image-file" class="form-label">Select Image</label>
+                                    <input class="form-control" type="file" id="image-file" accept="image/*">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="upload-image-alt" class="form-label">Alt Text</label>
+                                    <input type="text" class="form-control" id="upload-image-alt" placeholder="Image description">
+                                </div>
+                                <div class="progress d-none" id="image-upload-progress-container">
+                                    <div id="image-upload-progress-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="attachments-content" role="tabpanel" aria-labelledby="attachments-tab">
+                            <div id="attachment-images-container">
+                                <p class="text-center py-3">No image attachments available</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="insert-image-btn">Insert</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Unsaved Changes Alert Modal -->
+    <div class="modal fade" id="unsaved-changes-modal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Unsaved Changes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>You have unsaved changes. What would you like to do?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue Editing</button>
+                    <button type="button" class="btn btn-danger" id="discard-changes-btn">Discard Changes</button>
+                    <button type="button" class="btn btn-primary" id="save-before-exit-btn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
