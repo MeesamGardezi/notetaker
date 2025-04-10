@@ -13,22 +13,22 @@ const appState = {
   };
   
   // Router
-  const router = {
+  const appRouter = {
     init: () => {
       // Handle navigation through hash changes
       window.addEventListener('hashchange', () => {
-        router.handleRouteChange();
+        appRouter.handleRouteChange();
       });
       
       // Initial route handling
-      router.handleRouteChange();
+      appRouter.handleRouteChange();
     },
     
     handleRouteChange: () => {
       const hash = window.location.hash.substring(1) || '';
       
       // Parse route
-      router.parseRoute(hash);
+      appRouter.parseRoute(hash);
     },
     
     parseRoute: (route) => {
@@ -53,28 +53,28 @@ const appState = {
       } else if (page === 'dashboard') {
         if (!authService.getIsAuthenticated()) {
           // Redirect to login if not authenticated
-          router.navigate('login');
+          appRouter.navigate('login');
           return;
         }
         loadPage('dashboard');
       } else if (page === 'modules' && parts[1]) {
         if (!authService.getIsAuthenticated()) {
           // Redirect to login if not authenticated
-          router.navigate('login');
+          appRouter.navigate('login');
           return;
         }
         loadPage('module', { id: parts[1] });
       } else if (page === 'notes' && parts[1]) {
         if (!authService.getIsAuthenticated()) {
           // Redirect to login if not authenticated
-          router.navigate('login');
+          appRouter.navigate('login');
           return;
         }
         loadPage('note', { id: parts[1] });
       } else if (page === 'editor') {
         if (!authService.getIsAuthenticated()) {
           // Redirect to login if not authenticated
-          router.navigate('login');
+          appRouter.navigate('login');
           return;
         }
         const moduleId = parts[1] || null;
@@ -83,7 +83,7 @@ const appState = {
       } else if (page === 'account') {
         if (!authService.getIsAuthenticated()) {
           // Redirect to login if not authenticated
-          router.navigate('login');
+          appRouter.navigate('login');
           return;
         }
         const section = parts[1] || 'profile';
@@ -328,7 +328,7 @@ const appState = {
         if (email && password) {
           try {
             await authService.login(email, password);
-            router.navigate('dashboard');
+            appRouter.navigate('dashboard');
           } catch (loginError) {
             alert('Login failed: ' + (loginError.message || 'Please check your credentials'));
           }
@@ -383,7 +383,7 @@ const appState = {
     try {
       // Check authentication
       if (!authService.getIsAuthenticated()) {
-        router.navigate('login');
+        appRouter.navigate('login');
         return;
       }
       
@@ -409,7 +409,7 @@ const appState = {
     try {
       // Check authentication
       if (!authService.getIsAuthenticated()) {
-        router.navigate('login');
+        appRouter.navigate('login');
         return;
       }
       
@@ -439,7 +439,7 @@ const appState = {
     try {
       // Check authentication
       if (!authService.getIsAuthenticated()) {
-        router.navigate('login');
+        appRouter.navigate('login');
         return;
       }
       
@@ -470,7 +470,7 @@ const appState = {
     try {
       // Check authentication
       if (!authService.getIsAuthenticated()) {
-        router.navigate('login');
+        appRouter.navigate('login');
         return;
       }
       
@@ -510,7 +510,7 @@ const appState = {
     try {
       // Check authentication
       if (!authService.getIsAuthenticated()) {
-        router.navigate('login');
+        appRouter.navigate('login');
         return;
       }
       
@@ -594,7 +594,7 @@ const appState = {
           try {
             setLoading(true);
             await authService.logout();
-            router.navigate('login');
+            appRouter.navigate('login');
           } catch (error) {
             console.error('Logout failed:', error);
             showToast('Logout failed: ' + error.message, 'error');
@@ -685,7 +685,7 @@ const appState = {
       
       // Add click event to navigate to module
       moduleItem.addEventListener('click', () => {
-        router.navigate('module', { id: module.id });
+        appRouter.navigate('module', { id: module.id });
       });
       
       modulesList.appendChild(moduleItem);
@@ -926,7 +926,7 @@ const appState = {
             });
             
             // Simulate navigation to editor page
-            router.navigate('editor', { moduleId });
+            appRouter.navigate('editor', { moduleId });
           } else {
             showToast('Please select a module', 'warning');
           }
@@ -946,7 +946,7 @@ const appState = {
     const accountAction = document.getElementById('account-action');
     if (accountAction) {
       accountAction.addEventListener('click', () => {
-        router.navigate('account', { section: 'profile' });
+        appRouter.navigate('account', { section: 'profile' });
       });
     }
   };
@@ -1000,14 +1000,14 @@ const appState = {
     document.querySelectorAll('a[href="#login"]').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        router.navigate('login');
+        appRouter.navigate('login');
       });
     });
     
     document.querySelectorAll('a[href="#register"]').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        router.navigate('register');
+        appRouter.navigate('register');
       });
     });
   };
@@ -1033,7 +1033,7 @@ const appState = {
         try {
           setLoading(true);
           await authService.login(email, password);
-          router.navigate('dashboard');
+          appRouter.navigate('dashboard');
         } catch (error) {
           console.error('Login failed:', error);
           
@@ -1057,7 +1057,7 @@ const appState = {
     document.querySelectorAll('a[href="#register"]').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        router.navigate('register');
+        appRouter.navigate('register');
       });
     });
   };
@@ -1091,7 +1091,7 @@ const appState = {
           
           if (result.success) {
             showToast('Registration successful!', 'success');
-            router.navigate('dashboard');
+            appRouter.navigate('dashboard');
           } else {
             throw new Error(result.message || 'Registration failed');
           }
@@ -1118,7 +1118,7 @@ const appState = {
     document.querySelectorAll('a[href="#login"]').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        router.navigate('login');
+        appRouter.navigate('login');
       });
     });
   };
@@ -1141,19 +1141,19 @@ const appState = {
                currentHash.startsWith('notes') || 
                currentHash.startsWith('editor') || 
                currentHash.startsWith('account'))) {
-            router.navigate('login');
+            appRouter.navigate('login');
           }
           
           // If we're on login/register and authenticated, redirect to dashboard
           if (authState.isAuthenticated && 
               (currentHash === 'login' || currentHash === 'register')) {
-            router.navigate('dashboard');
+            appRouter.navigate('dashboard');
           }
         }
       });
   
-      // Initialize router after auth is ready
-      router.init();
+      // Initialize appRouter after auth is ready
+      appRouter.init();
       
       // Mark app as initialized
       appState.isInitialized = true;

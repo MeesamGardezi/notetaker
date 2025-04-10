@@ -89,9 +89,16 @@ const staticOptions = {
   }
 };
 
-// CRITICAL: Serve static files with proper MIME types
-// This must come BEFORE any API routes or middleware that might catch these requests
-app.use(express.static(path.join(__dirname, '../public'), staticOptions));
+app.use(express.static(path.join(__dirname, '../public'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+  }
+}));
+
 
 // API routes
 app.use('/api/auth', authRoutes);
