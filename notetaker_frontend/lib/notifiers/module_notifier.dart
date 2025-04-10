@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
+import '../config/constants.dart';
 import '../models/module.dart';
 import '../services/firestore_service.dart';
 
@@ -172,7 +175,6 @@ class ModuleNotifier {
       // First check if module is already loaded
       final module = _modules.value.firstWhere(
         (m) => m.id == moduleId,
-        orElse: () => null,
       );
       
       if (module != null) {

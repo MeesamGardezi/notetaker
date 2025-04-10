@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import '../models/note.dart';
 import '../services/firestore_service.dart';
@@ -207,7 +209,6 @@ class NoteNotifier {
       // First check if note is already loaded
       final note = _notes.value.firstWhere(
         (n) => n.id == noteId,
-        orElse: () => null,
       );
       
       if (note != null) {
