@@ -1,0 +1,48 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection
+    match /users/{userId} {
+      // User can only read and write their own profile
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Modules collection
+    match /modules/{moduleId} {
+      // Allow read/write only if the module belongs to the authenticated user
+      allow read, write: if request.auth != null && 
+                          resource.data.userId == request.auth.uid;
+      
+      // Allow create if the user is authenticated and setting their own userId
+      allow create: if request.auth != null && 
+                    request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Notes collection
+    match /notes/{noteId} {
+      // Allow read/write only if the note belongs to the authenticated user
+      allow read, write: if request.auth != null && 
+                          resource.data.userId == request.auth.uid;
+      
+      // Allow create if the user is authenticated and setting their own userId
+      allow create: if request.auth != null && 
+                    request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Validation functions
+    function isValidModule(moduleId) {
+      let module = get(/databases/$(database)/documents/modules/$(moduleId)).data;
+      return module != null && module.userId == request.auth.uid;
+    }
+    
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+  }
+}

@@ -1,0 +1,216 @@
+<!-- Account Security Page -->
+<div class="account-page security-page">
+    <!-- Account Container -->
+    <div class="account-container">
+        <!-- Account Header -->
+        <div class="account-header">
+            <h1><i class="fas fa-shield-alt me-2"></i> Security & Password</h1>
+            <p class="account-subtitle">Manage your account security settings</p>
+        </div>
+
+        <!-- Account Sidebar and Content Layout -->
+        <div class="account-layout">
+            <!-- Account Sidebar -->
+            <div class="account-sidebar">
+                <div class="account-sidebar-content">
+                    <ul class="account-nav">
+                        <li class="account-nav-item">
+                            <a href="#account/profile" class="account-nav-link">
+                                <i class="fas fa-user-circle me-2"></i>
+                                <span>Profile Information</span>
+                            </a>
+                        </li>
+                        <li class="account-nav-item active">
+                            <a href="#account/security" class="account-nav-link">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                <span>Security & Password</span>
+                            </a>
+                        </li>
+                        <li class="account-nav-item">
+                            <a href="#account/tier" class="account-nav-link">
+                                <i class="fas fa-crown me-2"></i>
+                                <span>Subscription & Tier</span>
+                            </a>
+                        </li>
+                        <li class="account-nav-item">
+                            <a href="#account/usage" class="account-nav-link">
+                                <i class="fas fa-chart-pie me-2"></i>
+                                <span>Usage & Statistics</span>
+                            </a>
+                        </li>
+                        <li class="account-nav-item">
+                            <a href="#account/preferences" class="account-nav-link">
+                                <i class="fas fa-sliders-h me-2"></i>
+                                <span>Preferences</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <div class="account-nav-bottom">
+                        <a href="#" id="delete-account-link" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-user-slash me-2"></i> Delete Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Main Content -->
+            <div class="account-main">
+                <!-- Success/Error Alert -->
+                <div class="alert alert-success d-none" id="security-success-alert" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span id="security-success-message">Password changed successfully!</span>
+                </div>
+                <div class="alert alert-danger d-none" id="security-error-alert" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span id="security-error-message">Error updating security settings</span>
+                </div>
+
+                <!-- Password Change Card -->
+                <div class="account-card">
+                    <div class="account-card-header">
+                        <h2>Change Password</h2>
+                        <p>Update your account password</p>
+                    </div>
+                    <div class="account-card-body">
+                        <form id="password-form">
+                            <div class="mb-3">
+                                <label for="current-password" class="form-label">Current Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control" id="current-password" required>
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="new-password" class="form-label">New Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control" id="new-password" required minlength="8">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength-meter mt-2">
+                                    <div class="progress">
+                                        <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-1">
+                                        <small>Weak</small>
+                                        <small>Medium</small>
+                                        <small>Strong</small>
+                                    </div>
+                                </div>
+                                <ul class="password-requirements small mt-2">
+                                    <li id="req-length"><i class="fas fa-times-circle text-danger"></i> At least 8 characters</li>
+                                    <li id="req-uppercase"><i class="fas fa-times-circle text-danger"></i> At least one uppercase letter</li>
+                                    <li id="req-lowercase"><i class="fas fa-times-circle text-danger"></i> At least one lowercase letter</li>
+                                    <li id="req-number"><i class="fas fa-times-circle text-danger"></i> At least one number</li>
+                                </ul>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirm-password" class="form-label">Confirm New Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control" id="confirm-password" required>
+                                    <button class="btn btn-outline-secondary toggle-password" type="button">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div id="password-match-feedback" class="form-text"></div>
+                            </div>
+
+                            <!-- Save Button -->
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary" id="save-password-btn">
+                                    <span id="save-password-text">Update Password</span>
+                                    <span class="spinner-border spinner-border-sm d-none" id="save-password-spinner" role="status" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Email Verification Card -->
+                <div class="account-card">
+                    <div class="account-card-header">
+                        <h2>Email Verification</h2>
+                        <p>Verify your email address for additional security</p>
+                    </div>
+                    <div class="account-card-body">
+                        <div class="email-verification-status">
+                            <div id="email-verified" class="d-none">
+                                <div class="alert alert-success mb-4">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Your email address (<span id="verified-email">user@example.com</span>) has been verified.
+                                </div>
+                            </div>
+                            <div id="email-unverified" class="d-none">
+                                <div class="alert alert-warning mb-4">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Your email address (<span id="unverified-email">user@example.com</span>) has not been verified.
+                                </div>
+                                <button id="send-verification-email-btn" class="btn btn-primary">
+                                    <i class="fas fa-envelope me-2"></i> Send Verification Email
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Management Card -->
+                <div class="account-card">
+                    <div class="account-card-header">
+                        <h2>Active Sessions</h2>
+                        <p>Manage your active login sessions</p>
+                    </div>
+                    <div class="account-card-body">
+                        <div class="account-activity-list" id="sessions-list">
+                            <div class="account-activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-laptop"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <div class="activity-title">Current Device</div>
+                                    <div class="activity-subtitle">
+                                        <span class="activity-device">Chrome on Windows</span>
+                                        <span class="activity-location">New York, USA</span>
+                                    </div>
+                                    <div class="activity-time">Active now</div>
+                                </div>
+                                <div class="activity-status">
+                                    <span class="badge bg-success">Current</span>
+                                </div>
+                            </div>
+                            <div class="account-activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <div class="activity-title">Mobile Device</div>
+                                    <div class="activity-subtitle">
+                                        <span class="activity-device">Safari on iOS</span>
+                                        <span class="activity-location">Boston, USA</span>
+                                    </div>
+                                    <div class="activity-time">Last active 2 days ago</div>
+                                </div>
+                                <div class="activity-actions">
+                                    <button class="btn btn-sm btn-outline-danger logout-session-btn" data-session-id="session-2">
+                                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <button id="logout-all-sessions-btn" class="btn btn-danger">
+                                <i class="fas fa-sign-out-alt me-1"></i> Logout of All Other Devices
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,305 @@
+<!-- Account Usage Page -->
+<div class="account-page usage-page">
+    <!-- Account Container -->
+    <div class="account-container">
+        <!-- Account Header -->
+        <div class="account-header">
+            <h1><i class="fas fa-chart-pie me-2"></i> Usage & Statistics</h1>
+            <p class="account-subtitle">View your app usage and storage statistics</p>
+        </div>
+
+        <!-- Account Sidebar and Content Layout -->
+        <div class="account-layout">
+            <!-- Account Sidebar -->
+            <div class="account-sidebar">
+                <div class="account-sidebar-content">
+                    <ul class="account-nav">
+                        <li class="account-nav-item">
+                            <a href="#account/profile" class="account-nav-link">
+                                <i class="fas fa-user-circle me-2"></i>
+                                <span>Profile Information</span>
+                            </a>
+                        </li>
+                        <li class="account-nav-item">
+                            <a href="#account/security" class="account-nav-link">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                <span>Security & Password</span>
+                            </a>
+                        </li>
+                        <li class="account-nav-item">
+                            <a href="#account/tier" class="account-nav-link">
+                                <i class="fas fa-crown me-2"></i>
+                                <span>Subscription & Tier</span>
+                            </a>
+                        </li>
+                        <li class="account-nav-item active">
+                            <a href="#account/usage" class="account-nav-link">
+                                <i class="fas fa-chart-pie me-2"></i>
+                                <span>Usage & Statistics</span>
+                            </a>
+                        </li>
+                        <li class="account-nav-item">
+                            <a href="#account/preferences" class="account-nav-link">
+                                <i class="fas fa-sliders-h me-2"></i>
+                                <span>Preferences</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <div class="account-nav-bottom">
+                        <a href="#" id="delete-account-link" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-user-slash me-2"></i> Delete Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Main Content -->
+            <div class="account-main">
+                <!-- Usage Overview Card -->
+                <div class="account-card">
+                    <div class="account-card-header">
+                        <h2>Usage Overview</h2>
+                        <p>Summary of your app usage and limits</p>
+                    </div>
+                    <div class="account-card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="usage-stat-card">
+                                    <div class="usage-stat-icon">
+                                        <i class="fas fa-folder"></i>
+                                    </div>
+                                    <div class="usage-stat-content">
+                                        <h3 id="modules-count">3</h3>
+                                        <p>Modules</p>
+                                        <div class="progress mt-2">
+                                            <div id="modules-progress" class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <small id="modules-limit">3 of 4 modules</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="usage-stat-card">
+                                    <div class="usage-stat-icon">
+                                        <i class="fas fa-sticky-note"></i>
+                                    </div>
+                                    <div class="usage-stat-content">
+                                        <h3 id="notes-count">12</h3>
+                                        <p>Notes</p>
+                                        <div class="progress mt-2">
+                                            <div id="notes-progress" class="progress-bar" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <small id="notes-limit">12 notes total</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="usage-stat-card">
+                                    <div class="usage-stat-icon">
+                                        <i class="fas fa-database"></i>
+                                    </div>
+                                    <div class="usage-stat-content">
+                                        <h3 id="storage-used">25 MB</h3>
+                                        <p>Storage Used</p>
+                                        <div class="progress mt-2">
+                                            <div id="storage-progress" class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <small id="storage-limit">25 MB of 50 MB used</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Storage Breakdown Card -->
+                <div class="account-card">
+                    <div class="account-card-header">
+                        <h2>Storage Breakdown</h2>
+                        <p>Analysis of your storage usage by file type</p>
+                    </div>
+                    <div class="account-card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="storage-chart-container">
+                                    <canvas id="storage-chart" width="400" height="300"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="storage-breakdown">
+                                    <h4>Storage by File Type</h4>
+                                    <ul class="storage-breakdown-list">
+                                        <li>
+                                            <div class="storage-type-item">
+                                                <div class="storage-type-color" style="background-color: #3498db;"></div>
+                                                <div class="storage-type-info">
+                                                    <div class="storage-type-name">Images</div>
+                                                    <div class="storage-type-size" id="image-storage">15 MB</div>
+                                                </div>
+                                                <div class="storage-type-percent">60%</div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="storage-type-item">
+                                                <div class="storage-type-color" style="background-color: #2ecc71;"></div>
+                                                <div class="storage-type-info">
+                                                    <div class="storage-type-name">Documents</div>
+                                                    <div class="storage-type-size" id="document-storage">8 MB</div>
+                                                </div>
+                                                <div class="storage-type-percent">32%</div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="storage-type-item">
+                                                <div class="storage-type-color" style="background-color: #e74c3c;"></div>
+                                                <div class="storage-type-info">
+                                                    <div class="storage-type-name">Others</div>
+                                                    <div class="storage-type-size" id="other-storage">2 MB</div>
+                                                </div>
+                                                <div class="storage-type-percent">8%</div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="storage-actions mt-4">
+                                    <button id="cleanup-storage-btn" class="btn btn-outline-primary">
+                                        <i class="fas fa-broom me-2"></i> Cleanup Unused Files
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module Usage Card -->
+                <div class="account-card">
+                    <div class="account-card-header">
+                        <h2>Module Statistics</h2>
+                        <p>Notes distribution across your modules</p>
+                    </div>
+                    <div class="account-card-body">
+                        <div id="module-stats-container">
+                            <div class="module-stats-item">
+                                <div class="module-stats-header">
+                                    <div class="module-color" style="background-color: #3498db;"></div>
+                                    <h4 class="module-name">Work Projects</h4>
+                                </div>
+                                <div class="module-stats-content">
+                                    <div class="module-stats-count">
+                                        <span class="note-count">5</span> / <span class="note-limit">10</span> notes
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="module-stats-item">
+                                <div class="module-stats-header">
+                                    <div class="module-color" style="background-color: #2ecc71;"></div>
+                                    <h4 class="module-name">Personal</h4>
+                                </div>
+                                <div class="module-stats-content">
+                                    <div class="module-stats-count">
+                                        <span class="note-count">3</span> / <span class="note-limit">10</span> notes
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="module-stats-item">
+                                <div class="module-stats-header">
+                                    <div class="module-color" style="background-color: #e74c3c;"></div>
+                                    <h4 class="module-name">Research</h4>
+                                </div>
+                                <div class="module-stats-content">
+                                    <div class="module-stats-count">
+                                        <span class="note-count">4</span> / <span class="note-limit">10</span> notes
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Card -->
+                <div class="account-card">
+                    <div class="account-card-header">
+                        <h2>Recent Activity</h2>
+                        <p>Your recent actions and changes</p>
+                    </div>
+                    <div class="account-card-body">
+                        <div class="activity-list" id="recent-activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-text">You edited <strong>Project Ideas</strong></div>
+                                    <div class="activity-time">Today, 10:30 AM</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-text">You created a new note <strong>Meeting Notes</strong></div>
+                                    <div class="activity-time">Yesterday, 3:45 PM</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-upload"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-text">You uploaded a file to <strong>Meeting Notes</strong></div>
+                                    <div class="activity-time">Yesterday, 3:48 PM</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-folder-plus"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-text">You created a new module <strong>Research</strong></div>
+                                    <div class="activity-time">Apr 8, 2025</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cleanup Confirmation Modal -->
+    <div class="modal fade" id="cleanup-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Storage Cleanup</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>This will scan your account for unused or orphaned files and remove them to free up storage space.</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        This action cannot be undone. Only files that are no longer referenced by any notes will be deleted.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirm-cleanup-btn">
+                        <span id="cleanup-button-text">Confirm Cleanup</span>
+                        <span class="spinner-border spinner-border-sm d-none" id="cleanup-spinner" role="status" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

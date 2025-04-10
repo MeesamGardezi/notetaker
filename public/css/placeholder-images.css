@@ -1,0 +1,82 @@
+/* 
+ * Placeholder Images CSS
+ * This file contains styling for placeholder images when actual images are not available
+ */
+
+/* Default avatar placeholder */
+.avatar-placeholder {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border-radius: 50%;
+    font-size: 1rem;
+  }
+  
+  .avatar-placeholder-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+  
+  .avatar-placeholder-md {
+    width: 50px;
+    height: 50px;
+    font-size: 1rem;
+  }
+  
+  .avatar-placeholder-lg {
+    width: 100px;
+    height: 100px;
+    font-size: 2rem;
+  }
+  
+  /* Image placeholders */
+  .image-placeholder {
+    background-color: var(--gray-light);
+    color: var(--gray-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: var(--border-radius);
+  }
+  
+  .image-placeholder i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .image-placeholder-text {
+    font-size: 0.8rem;
+  }
+  
+  .hero-image-placeholder {
+    width: 100%;
+    height: 300px;
+    background-color: var(--primary-light);
+    border-radius: var(--border-radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+  }
+  
+  .hero-image-placeholder i {
+    font-size: 3rem;
+  }
+  
+  .testimonial-image-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--secondary-light);
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+    border: 3px solid var(--primary-color);
+  }
