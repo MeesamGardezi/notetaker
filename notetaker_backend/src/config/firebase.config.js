@@ -19,16 +19,16 @@ let firebaseStorage = null;
 
 /**
  * Initialize Firebase Admin SDK
- * @returns {Object} Firebase services
+ * @returns {Promise<Object>} Firebase services
  */
-const initializeFirebase = () => {
-  // Check if Firebase Admin SDK is already initialized
-  if (admin.apps.length > 0) {
-    console.log('Firebase Admin SDK already initialized');
-    return getFirebaseServices();
-  }
-
+const initializeFirebase = async () => {
   try {
+    // Check if Firebase Admin SDK is already initialized
+    if (admin.apps.length > 0) {
+      console.log('Firebase Admin SDK already initialized');
+      return getFirebaseServices();
+    }
+
     // Initialize with service account if available
     let serviceAccount = null;
 
@@ -103,8 +103,37 @@ const initializeFirebase = () => {
 const getFirebaseServices = () => {
   // Check if services are initialized
   if (!firebaseAdmin || !firebaseAuth || !firebaseDb || !firebaseStorage) {
-    // Initialize if not already done
-    initializeFirebase();
+    // Initialize if not already done - but since this is synchronous,
+    // we can't await the async initializeFirebase, so we initialize directly
+    if (admin.apps.length === 0) {
+      try {
+        // Load service account
+        let serviceAccount = null;
+        const repoServiceAccountPath = path.resolve(__dirname, '../../firebase_service.json');
+        if (fs.existsSync(repoServiceAccountPath)) {
+          serviceAccount = require(repoServiceAccountPath);
+        }
+
+        if (serviceAccount) {
+          // Initialize with service account
+          firebaseAdmin = admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            databaseURL: process.env.FIREBASE_DATABASE_URL,
+            storageBucket: process.env.FIREBASE_STORAGE_BUCKET
+          });
+        } else {
+          // Initialize with application default credentials
+          firebaseAdmin = admin.initializeApp({
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+            databaseURL: process.env.FIREBASE_DATABASE_URL
+          });
+        }
+      } catch (error) {
+        console.error('Failed to initialize Firebase in getFirebaseServices:', error);
+        throw error;
+      }
+    }
   }
   
   return {
@@ -130,6 +159,7 @@ const getClientConfig = () => {
   };
 };
 
+// Module exports
 module.exports = {
   initializeFirebase,
   getFirebaseServices,
