@@ -34,7 +34,7 @@ const validateFirebaseConfig = (config) => {
   }
   
   // Check if apiKey seems valid (at least 20 chars)
-  if (config.apiKey === 'your-firebase-api-key' || 
+  if (config.apiKey === 'AIzaSyCs0a__R7PJjbCRc5nmVriTm7jIaxgHTY8' || 
       config.apiKey.length < 20 || 
       config.apiKey.includes('your-')) {
     console.warn('Firebase API key seems invalid or missing');
