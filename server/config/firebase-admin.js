@@ -43,17 +43,24 @@ const initializeFirebaseAdmin = () => {
       try {
         // Check if file exists
         if (fs.existsSync(serviceAccountPath)) {
-          serviceAccount = require(path.resolve(serviceAccountPath));
+          // Using fs.readFileSync instead of require to handle paths outside of project directory
+          const rawData = fs.readFileSync(serviceAccountPath, 'utf8');
+          serviceAccount = JSON.parse(rawData);
+          console.log('Service account file loaded successfully');
         } else {
           console.warn(`Service account file not found at ${serviceAccountPath}`);
         }
       } catch (fileError) {
         console.error('Error reading service account file:', fileError);
+        console.error(fileError.stack);
       }
     }
     
     // Initialize with service account if available
     if (serviceAccount) {
+      // Log partial service account info for debugging (never log the private key)
+      console.log(`Found service account for project: ${serviceAccount.project_id}`);
+      
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
         databaseURL: process.env.FIREBASE_DATABASE_URL,

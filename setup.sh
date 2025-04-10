@@ -1,127 +1,66 @@
 #!/bin/bash
 
-# Create the main application directory
-mkdir -p notes-app
-cd notes-app
+# Create root project directory
+mkdir -p notetaker_backend
 
-# Create server directory structure
-mkdir -p server/config
-mkdir -p server/services
-mkdir -p server/controllers
-mkdir -p server/routes
-mkdir -p server/middleware
-mkdir -p server/utils
+# Create directory structure
+mkdir -p notetaker_backend/src/controllers
+mkdir -p notetaker_backend/src/middleware
+mkdir -p notetaker_backend/src/models
+mkdir -p notetaker_backend/src/routes
+mkdir -p notetaker_backend/src/services
+mkdir -p notetaker_backend/src/utils
+mkdir -p notetaker_backend/src/config
+mkdir -p notetaker_backend/tests
 
-# Create server config files
-touch server/config/firebase-admin.js
-touch server/config/firebase-client.js
-touch server/config/config.js
+# Create main application files
+touch notetaker_backend/src/app.js
+touch notetaker_backend/src/server.js
+touch notetaker_backend/.env.example
+touch notetaker_backend/.gitignore
+touch notetaker_backend/package.json
 
-# Create server service files
-touch server/services/auth.service.js
-touch server/services/module.service.js
-touch server/services/note.service.js
-touch server/services/media.service.js
-touch server/services/storage.service.js
-touch server/services/tier.service.js
+# Create config files
+touch notetaker_backend/src/config/firebase.config.js
+touch notetaker_backend/src/config/app.config.js
+touch notetaker_backend/src/config/tier.config.js
 
-# Create server controller files
-touch server/controllers/auth.controller.js
-touch server/controllers/account.controller.js
-touch server/controllers/module.controller.js
-touch server/controllers/note.controller.js
-touch server/controllers/media.controller.js
-touch server/controllers/tier.controller.js
+# Create controller files
+touch notetaker_backend/src/controllers/auth.controller.js
+touch notetaker_backend/src/controllers/user.controller.js
+touch notetaker_backend/src/controllers/module.controller.js
+touch notetaker_backend/src/controllers/note.controller.js
+touch notetaker_backend/src/controllers/media.controller.js
 
-# Create server route files
-touch server/routes/auth.routes.js
-touch server/routes/account.routes.js
-touch server/routes/module.routes.js
-touch server/routes/note.routes.js
-touch server/routes/media.routes.js
-touch server/routes/tier.routes.js
+# Create middleware files
+touch notetaker_backend/src/middleware/auth.middleware.js
+touch notetaker_backend/src/middleware/error.middleware.js
+touch notetaker_backend/src/middleware/upload.middleware.js
+touch notetaker_backend/src/middleware/validation.middleware.js
 
-# Create server middleware files
-touch server/middleware/auth.middleware.js
-touch server/middleware/tier.middleware.js
-touch server/middleware/error.middleware.js
-touch server/middleware/upload.middleware.js
+# Create route files
+touch notetaker_backend/src/routes/auth.routes.js
+touch notetaker_backend/src/routes/user.routes.js
+touch notetaker_backend/src/routes/module.routes.js
+touch notetaker_backend/src/routes/note.routes.js
+touch notetaker_backend/src/routes/media.routes.js
 
-# Create server utility files
-touch server/utils/validators.js
-touch server/utils/tier-limits.js
-touch server/utils/firebase-helpers.js
+# Create service files
+touch notetaker_backend/src/services/auth.service.js
+touch notetaker_backend/src/services/user.service.js
+touch notetaker_backend/src/services/module.service.js
+touch notetaker_backend/src/services/note.service.js
+touch notetaker_backend/src/services/media.service.js
+touch notetaker_backend/src/services/firebase.service.js
+touch notetaker_backend/src/services/storage.service.js
 
-# Create main server app file
-touch server/app.js
+# Create utility files
+touch notetaker_backend/src/utils/response.util.js
+touch notetaker_backend/src/utils/logger.util.js
+touch notetaker_backend/src/utils/validators.util.js
+touch notetaker_backend/src/utils/file.util.js
 
-# Create public directory structure
-mkdir -p public/css
-mkdir -p public/js
-mkdir -p public/libs/quill
-mkdir -p public/libs/dropzone
-mkdir -p public/libs/sortable
+# Create README.md with project info
+touch notetaker_backend/README.md
 
-# Create public CSS files
-touch public/css/style.css
-touch public/css/bootstrap.min.css
-
-# Create public JS files
-touch public/js/app.js
-touch public/js/firebase-init.js
-touch public/js/auth.js
-touch public/js/account.js
-touch public/js/modules.js
-touch public/js/notes.js
-touch public/js/editor.js
-touch public/js/media-uploader.js
-touch public/js/tier-management.js
-
-# Create public HTML file
-touch public/index.html
-
-# Create views directory structure
-mkdir -p views/partials
-mkdir -p views/auth
-mkdir -p views/account
-mkdir -p views/modules
-mkdir -p views/notes
-
-# Create views partial files
-touch views/partials/header.ejs
-touch views/partials/footer.ejs
-touch views/partials/sidebar.ejs
-touch views/partials/navbar.ejs
-
-# Create views auth files
-touch views/auth/login.ejs
-touch views/auth/register.ejs
-touch views/auth/reset-password.ejs
-touch views/auth/verify-email.ejs
-
-# Create views account files
-touch views/account/profile.ejs
-touch views/account/usage.ejs
-touch views/account/tier.ejs
-
-# Create views module files
-touch views/modules/index.ejs
-touch views/modules/view.ejs
-
-# Create views note files
-touch views/notes/view.ejs
-touch views/notes/edit.ejs
-
-# Create firebase directory and files
-mkdir -p firebase
-touch firebase/firestore.rules
-touch firebase/storage.rules
-touch firebase/firebase.json
-
-# Create root level files
-touch .env.example
-touch .gitignore
-touch package.json
-touch server.js
-
-echo "File structure created successfully!"
+echo "Backend directory structure created successfully!"
