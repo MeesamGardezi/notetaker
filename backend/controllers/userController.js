@@ -119,7 +119,7 @@ exports.changePassword = async (req, res, next) => {
     const userData = userDoc.data();
 
     // Verify current password
-    const isValid = await comparePassword(currentPassword, userData.passwordHash);
+    const isValid = await comparePassword(currentPassword, userData.passwordHash, userData.salt);
     if (!isValid) {
       return res.status(401).json({ 
         error: 'Current password is incorrect' 

@@ -60,21 +60,12 @@ exports.getModules = async (req, res, next) => {
     const { userId } = req.user;
     const { includeArchived } = req.query;
 
-    // Build query
-    let query = collections.modules.where('userId', '==', userId);
+    // Simple query - only filter by userId
+    const modulesSnapshot = await collections.modules
+      .where('userId', '==', userId)
+      .get();
     
-    // Filter archived modules if not explicitly included
-    if (includeArchived !== 'true') {
-      query = query.where('isArchived', '==', false);
-    }
-    
-    // Sort by sortOrder
-    query = query.orderBy('sortOrder', 'asc');
-
-    // Execute query
-    const modulesSnapshot = await query.get();
-    
-    const modules = modulesSnapshot.docs.map(doc => {
+    let modules = modulesSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -83,6 +74,14 @@ exports.getModules = async (req, res, next) => {
         updatedAt: data.updatedAt.toMillis()
       };
     });
+    
+    // Filter archived modules in memory if needed
+    if (includeArchived !== 'true') {
+      modules = modules.filter(module => module.isArchived === false);
+    }
+    
+    // Sort by sortOrder in memory
+    modules.sort((a, b) => a.sortOrder - b.sortOrder);
 
     res.status(200).json({ modules });
   } catch (error) {
@@ -220,7 +219,7 @@ exports.deleteModule = async (req, res, next) => {
     // Start a batch operation
     const batch = collections.db.batch();
     
-    // First, get all notes in this module
+    // Get all notes for this module with a simple query
     const notesSnapshot = await collections.notes
       .where('moduleId', '==', moduleId)
       .get();

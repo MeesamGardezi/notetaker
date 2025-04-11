@@ -142,10 +142,9 @@ exports.getNoteImages = async (req, res, next) => {
       });
     }
 
-    // Query for images
+    // Simple query for images
     const imagesSnapshot = await collections.noteImages
       .where('noteId', '==', noteId)
-      .orderBy('createdAt', 'desc')
       .get();
     
     const images = imagesSnapshot.docs.map(doc => {
@@ -156,6 +155,9 @@ exports.getNoteImages = async (req, res, next) => {
         createdAt: data.createdAt.toMillis()
       };
     });
+    
+    // Sort by createdAt (most recent first) in memory
+    images.sort((a, b) => b.createdAt - a.createdAt);
 
     res.status(200).json({ images });
   } catch (error) {
@@ -221,25 +223,14 @@ exports.getUserImages = async (req, res, next) => {
     const { limit = 20, page = 1 } = req.query;
     
     const pageSize = parseInt(limit);
-    const offset = (parseInt(page) - 1) * pageSize;
+    const currentPage = parseInt(page);
 
-    // Query for total count
-    const countSnapshot = await collections.noteImages
-      .where('userId', '==', userId)
-      .count()
-      .get();
-    
-    const totalImages = countSnapshot.data().count;
-    
-    // Query for paginated images
+    // Simple query - only filter by userId
     const imagesSnapshot = await collections.noteImages
       .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc')
-      .limit(pageSize)
-      .offset(offset)
       .get();
     
-    const images = imagesSnapshot.docs.map(doc => {
+    const allImages = imagesSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -247,12 +238,21 @@ exports.getUserImages = async (req, res, next) => {
         createdAt: data.createdAt.toMillis()
       };
     });
+    
+    // Sort by createdAt (most recent first) in memory
+    allImages.sort((a, b) => b.createdAt - a.createdAt);
+    
+    // Implement pagination in memory
+    const totalImages = allImages.length;
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedImages = allImages.slice(startIndex, endIndex);
 
     res.status(200).json({
-      images,
+      images: paginatedImages,
       pagination: {
         total: totalImages,
-        page: parseInt(page),
+        page: currentPage,
         pageSize,
         totalPages: Math.ceil(totalImages / pageSize)
       }

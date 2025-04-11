@@ -37,13 +37,17 @@ exports.createNote = async (req, res, next) => {
 
     // Validate tags exist and belong to user
     if (tags.length > 0) {
+      // Get all tags for this user
       const tagDocs = await collections.tags
         .where('userId', '==', userId)
-        .where('id', 'in', tags)
         .get();
       
-      // Check if all tags were found
-      if (tagDocs.size !== tags.length) {
+      const userTagIds = tagDocs.docs.map(doc => doc.id);
+      
+      // Check if all provided tags exist in user's tags
+      const validTags = tags.every(tagId => userTagIds.includes(tagId));
+      
+      if (!validTags) {
         return res.status(400).json({ 
           error: 'One or more tags are invalid' 
         });
@@ -148,21 +152,12 @@ exports.getModuleNotes = async (req, res, next) => {
       });
     }
 
-    // Build query
-    let query = collections.notes.where('moduleId', '==', moduleId);
+    // Simple query - only filter by moduleId
+    const notesSnapshot = await collections.notes
+      .where('moduleId', '==', moduleId)
+      .get();
     
-    // Filter archived notes if not explicitly included
-    if (includeArchived !== 'true') {
-      query = query.where('isArchived', '==', false);
-    }
-    
-    // Sort by sortOrder
-    query = query.orderBy('sortOrder', 'asc');
-
-    // Execute query
-    const notesSnapshot = await query.get();
-    
-    const notes = notesSnapshot.docs.map(doc => {
+    let notes = notesSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -171,6 +166,14 @@ exports.getModuleNotes = async (req, res, next) => {
         updatedAt: data.updatedAt.toMillis()
       };
     });
+    
+    // Filter archived notes in memory if needed
+    if (includeArchived !== 'true') {
+      notes = notes.filter(note => note.isArchived === false);
+    }
+    
+    // Sort by sortOrder in memory
+    notes.sort((a, b) => a.sortOrder - b.sortOrder);
 
     res.status(200).json({ notes });
   } catch (error) {
@@ -186,23 +189,12 @@ exports.getStarredNotes = async (req, res, next) => {
     const { userId } = req.user;
     const { includeArchived } = req.query;
 
-    // Build query
-    let query = collections.notes
+    // Simple query - only filter by userId
+    const notesSnapshot = await collections.notes
       .where('userId', '==', userId)
-      .where('isStarred', '==', true);
+      .get();
     
-    // Filter archived notes if not explicitly included
-    if (includeArchived !== 'true') {
-      query = query.where('isArchived', '==', false);
-    }
-    
-    // Sort by updatedAt (most recent first)
-    query = query.orderBy('updatedAt', 'desc');
-
-    // Execute query
-    const notesSnapshot = await query.get();
-    
-    const notes = notesSnapshot.docs.map(doc => {
+    let notes = notesSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -211,6 +203,17 @@ exports.getStarredNotes = async (req, res, next) => {
         updatedAt: data.updatedAt.toMillis()
       };
     });
+    
+    // Filter starred notes in memory
+    notes = notes.filter(note => note.isStarred === true);
+    
+    // Filter archived notes in memory if needed
+    if (includeArchived !== 'true') {
+      notes = notes.filter(note => note.isArchived === false);
+    }
+    
+    // Sort by updatedAt (most recent first) in memory
+    notes.sort((a, b) => b.updatedAt - a.updatedAt);
 
     res.status(200).json({ notes });
   } catch (error) {
@@ -226,17 +229,12 @@ exports.getRecentNotes = async (req, res, next) => {
     const { userId } = req.user;
     const { limit = 10 } = req.query;
 
-    // Build query for non-archived notes
-    const query = collections.notes
+    // Simple query - only filter by userId
+    const notesSnapshot = await collections.notes
       .where('userId', '==', userId)
-      .where('isArchived', '==', false)
-      .orderBy('updatedAt', 'desc')
-      .limit(parseInt(limit));
-
-    // Execute query
-    const notesSnapshot = await query.get();
+      .get();
     
-    const notes = notesSnapshot.docs.map(doc => {
+    let notes = notesSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -245,6 +243,15 @@ exports.getRecentNotes = async (req, res, next) => {
         updatedAt: data.updatedAt.toMillis()
       };
     });
+    
+    // Filter non-archived notes in memory
+    notes = notes.filter(note => note.isArchived === false);
+    
+    // Sort by updatedAt (most recent first) in memory
+    notes.sort((a, b) => b.updatedAt - a.updatedAt);
+    
+    // Apply limit in memory
+    notes = notes.slice(0, parseInt(limit));
 
     res.status(200).json({ notes });
   } catch (error) {
@@ -473,7 +480,7 @@ exports.deleteNote = async (req, res, next) => {
     // Start a batch operation
     const batch = collections.db.batch();
 
-    // Get note images to delete
+    // Get note images with a simple query
     const imagesSnapshot = await collections.noteImages
       .where('noteId', '==', noteId)
       .get();
@@ -528,56 +535,57 @@ exports.searchNotes = async (req, res, next) => {
       });
     }
 
-    // Build base query
-    let firestoreQuery = collections.notes
+    // Simple query - only filter by userId
+    const notesSnapshot = await collections.notes
       .where('userId', '==', userId)
-      .where('isArchived', '==', false);
+      .get();
     
-    // Add module filter if provided
+    let notes = notesSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt.toMillis(),
+        updatedAt: data.updatedAt.toMillis()
+      };
+    });
+    
+    // Filter non-archived notes in memory
+    notes = notes.filter(note => note.isArchived === false);
+    
+    // Filter by moduleId if provided
     if (moduleId) {
-      firestoreQuery = firestoreQuery.where('moduleId', '==', moduleId);
+      notes = notes.filter(note => note.moduleId === moduleId);
     }
     
-    // Execute query
-    const notesSnapshot = await firestoreQuery.get();
-    
-    // Client-side filtering for text search (Firestore doesn't support full-text search)
+    // Client-side filtering for text search
     const queryLower = query.toLowerCase();
     
-    const notes = notesSnapshot.docs
-      .map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt.toMillis(),
-          updatedAt: data.updatedAt.toMillis()
-        };
-      })
-      .filter(note => {
-        // Search in title
-        if (note.title.toLowerCase().includes(queryLower)) {
-          return true;
-        }
-        
-        // Search in content plainText
-        if (note.content && note.content.plainText && 
-            note.content.plainText.toLowerCase().includes(queryLower)) {
-          return true;
-        }
-        
-        return false;
-      })
-      // Sort by relevance (title matches first, then by last updated)
-      .sort((a, b) => {
-        const aInTitle = a.title.toLowerCase().includes(queryLower);
-        const bInTitle = b.title.toLowerCase().includes(queryLower);
-        
-        if (aInTitle && !bInTitle) return -1;
-        if (!aInTitle && bInTitle) return 1;
-        
-        return b.updatedAt - a.updatedAt;
-      });
+    notes = notes.filter(note => {
+      // Search in title
+      if (note.title.toLowerCase().includes(queryLower)) {
+        return true;
+      }
+      
+      // Search in content plainText
+      if (note.content && note.content.plainText && 
+          note.content.plainText.toLowerCase().includes(queryLower)) {
+        return true;
+      }
+      
+      return false;
+    });
+    
+    // Sort by relevance (title matches first, then by last updated)
+    notes.sort((a, b) => {
+      const aInTitle = a.title.toLowerCase().includes(queryLower);
+      const bInTitle = b.title.toLowerCase().includes(queryLower);
+      
+      if (aInTitle && !bInTitle) return -1;
+      if (!aInTitle && bInTitle) return 1;
+      
+      return b.updatedAt - a.updatedAt;
+    });
 
     res.status(200).json({ notes });
   } catch (error) {

@@ -15,12 +15,12 @@ exports.register = async (req, res, next) => {
   try {
     const { email, password, displayName } = req.body;
 
-    // Check if email already exists
-    const userSnapshot = await collections.users
+    // Check if email already exists using a simple query
+    const usersSnapshot = await collections.users
       .where('email', '==', email.toLowerCase())
       .get();
 
-    if (!userSnapshot.empty) {
+    if (!usersSnapshot.empty) {
       return res.status(409).json({ 
         error: 'Email already in use' 
       });
@@ -92,22 +92,22 @@ exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // Get user by email
-    const userSnapshot = await collections.users
+    // Get user by email with a simple query
+    const usersSnapshot = await collections.users
       .where('email', '==', email.toLowerCase())
       .get();
 
-    if (userSnapshot.empty) {
+    if (usersSnapshot.empty) {
       return res.status(401).json({ 
         error: 'Invalid email or password' 
       });
     }
 
-    const userDoc = userSnapshot.docs[0];
+    const userDoc = usersSnapshot.docs[0];
     const userData = userDoc.data();
 
     // Verify password
-    const isValid = await comparePassword(password, userData.passwordHash);
+    const isValid = await comparePassword(password, userData.passwordHash, userData.salt);
     if (!isValid) {
       return res.status(401).json({ 
         error: 'Invalid email or password' 

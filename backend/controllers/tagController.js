@@ -13,13 +13,16 @@ exports.createTag = async (req, res, next) => {
     const { userId } = req.user;
     const { name, color } = req.body;
 
-    // Check if tag name already exists for this user
-    const existingTagSnapshot = await collections.tags
+    // Get all tags for this user to check for duplicates
+    const tagsSnapshot = await collections.tags
       .where('userId', '==', userId)
-      .where('name', '==', name)
       .get();
-
-    if (!existingTagSnapshot.empty) {
+    
+    const existingTag = tagsSnapshot.docs.find(doc => 
+      doc.data().name.toLowerCase() === name.toLowerCase()
+    );
+    
+    if (existingTag) {
       return res.status(409).json({ 
         error: 'A tag with this name already exists' 
       });
@@ -65,15 +68,12 @@ exports.getTags = async (req, res, next) => {
   try {
     const { userId } = req.user;
 
-    // Build query
-    const query = collections.tags
+    // Simple query - only filter by userId
+    const tagsSnapshot = await collections.tags
       .where('userId', '==', userId)
-      .orderBy('name', 'asc');
-
-    // Execute query
-    const tagsSnapshot = await query.get();
+      .get();
     
-    const tags = tagsSnapshot.docs.map(doc => {
+    let tags = tagsSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -81,6 +81,9 @@ exports.getTags = async (req, res, next) => {
         createdAt: data.createdAt.toMillis()
       };
     });
+    
+    // Sort by name in memory
+    tags.sort((a, b) => a.name.localeCompare(b.name));
 
     res.status(200).json({ tags });
   } catch (error) {
@@ -117,12 +120,17 @@ exports.updateTag = async (req, res, next) => {
 
     // If name is changing, check for duplicates
     if (name && name !== tagData.name) {
-      const existingTagSnapshot = await collections.tags
+      // Get all tags for this user to check for duplicates
+      const tagsSnapshot = await collections.tags
         .where('userId', '==', userId)
-        .where('name', '==', name)
         .get();
-
-      if (!existingTagSnapshot.empty) {
+      
+      const existingTag = tagsSnapshot.docs.find(doc => 
+        doc.id !== tagId && 
+        doc.data().name.toLowerCase() === name.toLowerCase()
+      );
+      
+      if (existingTag) {
         return res.status(409).json({ 
           error: 'A tag with this name already exists' 
         });
@@ -187,14 +195,18 @@ exports.deleteTag = async (req, res, next) => {
     // Start a batch operation
     const batch = collections.db.batch();
     
-    // Get all notes with this tag
+    // Get all notes with this tag using a simple query
     const notesSnapshot = await collections.notes
       .where('userId', '==', userId)
-      .where('tags', 'array-contains', tagId)
       .get();
     
+    const notesWithTag = notesSnapshot.docs.filter(doc => {
+      const noteData = doc.data();
+      return noteData.tags && noteData.tags.includes(tagId);
+    });
+    
     // Remove tag from all notes
-    notesSnapshot.docs.forEach(noteDoc => {
+    notesWithTag.forEach(noteDoc => {
       const noteData = noteDoc.data();
       const updatedTags = noteData.tags.filter(t => t !== tagId);
       batch.update(noteDoc.ref, { 
@@ -241,31 +253,31 @@ exports.getNotesByTag = async (req, res, next) => {
       });
     }
 
-    // Build query
-    let query = collections.notes
+    // Simple query - only filter by userId
+    const notesSnapshot = await collections.notes
       .where('userId', '==', userId)
-      .where('tags', 'array-contains', tagId);
+      .get();
     
-    // Filter archived notes if not explicitly included
+    // Filter notes by tag in memory
+    let notes = notesSnapshot.docs
+      .map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt.toMillis(),
+          updatedAt: data.updatedAt.toMillis()
+        };
+      })
+      .filter(note => note.tags && note.tags.includes(tagId));
+    
+    // Filter archived notes in memory if needed
     if (includeArchived !== 'true') {
-      query = query.where('isArchived', '==', false);
+      notes = notes.filter(note => note.isArchived === false);
     }
     
-    // Sort by updatedAt (most recent first)
-    query = query.orderBy('updatedAt', 'desc');
-
-    // Execute query
-    const notesSnapshot = await query.get();
-    
-    const notes = notesSnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        createdAt: data.createdAt.toMillis(),
-        updatedAt: data.updatedAt.toMillis()
-      };
-    });
+    // Sort by updatedAt (most recent first) in memory
+    notes.sort((a, b) => b.updatedAt - a.updatedAt);
 
     res.status(200).json({ 
       tag: {
