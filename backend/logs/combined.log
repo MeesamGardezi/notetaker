@@ -30,3 +30,6 @@
 2025-04-11 21:06:40:640 [32minfo[39m: [32mAPI available at http://localhost:3000/api[39m
 2025-04-11 21:06:42:642 [35mhttp[39m: [35mGET /api/modules[39m
 2025-04-11 21:06:55:655 [32minfo[39m: [32mSIGINT received. Shutting down gracefully[39m
+2025-04-11 21:22:36:2236 [32minfo[39m: [32mServer running on port 3000[39m
+2025-04-11 21:22:36:2236 [32minfo[39m: [32mEnvironment: development[39m
+2025-04-11 21:22:36:2236 [32minfo[39m: [32mAPI available at http://localhost:3000/api[39m
