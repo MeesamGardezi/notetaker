@@ -22,6 +22,8 @@ class AuthState extends ChangeNotifier {
     required this.apiService,
     required this.storageService,
   });
+
+  
   
   // Initialize authentication state from storage
   Future<void> initializeAuth() async {
@@ -46,6 +48,8 @@ class AuthState extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  
   
   // Login user with email and password
   Future<bool> login(String email, String password) async {

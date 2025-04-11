@@ -4,7 +4,12 @@ import '../state/auth_state.dart';
 import '../widgets/custom_app_bar.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  final AuthState authState;
+  
+  const SettingsScreen({
+    Key? key, 
+    required this.authState,
+  }) : super(key: key);
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -12,7 +17,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   late AppState _appState;
-  late AuthState _authState;
   
   bool _isLoading = false;
   String? _message;
@@ -24,22 +28,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _initializeStates();
   }
   
-  void _initializeStates() async {
-    // Get auth state using static method
-    _authState = AuthState.of(context);
-    
-    // Create app state
+  void _initializeStates() {
+    // Create app state using widget.authState (passed from constructor)
     _appState = AppState(
-      authState: _authState, 
-      apiService: _authState.apiService,
-      storageService: _authState.storageService,
+      authState: widget.authState, 
+      apiService: widget.authState.apiService,
+      storageService: widget.authState.storageService,
     );
   }
   
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final user = _authState.user;
+    final user = widget.authState.user;
     
     return Scaffold(
       appBar: const CustomAppBar(
@@ -88,7 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 8),
                         ValueListenableBuilder<bool>(
-                          valueListenable: appState.isDarkMode,
+                          valueListenable: _appState.isDarkMode,
                           builder: (context, isDarkMode, child) {
                             return SegmentedButton<String>(
                               segments: const [
@@ -140,7 +141,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 8),
                         ValueListenableBuilder<double>(
-                          valueListenable: appState.textScaleFactor,
+                          valueListenable: _appState.textScaleFactor,
                           builder: (context, scaleFactor, child) {
                             return Column(
                               children: [
@@ -155,7 +156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         divisions: 6,
                                         label: '${(scaleFactor * 100).round()}%',
                                         onChanged: (value) {
-                                          appState.updateTextScaleFactor(value);
+                                          _appState.updateTextScaleFactor(value);
                                         },
                                       ),
                                     ),
@@ -373,11 +374,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       } else {
         // System theme
-        final settings = {...?_authState.user?.settings};
+        final settings = {...?widget.authState.user?.settings};
         settings['theme'] = 'system';
         
         // Update user settings
-        await _authState.updateProfile(settings: settings);
+        await widget.authState.updateProfile(settings: settings);
       }
       
       setState(() {
@@ -593,7 +594,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
     
     try {
-      final success = await _authState.changePassword(
+      final success = await widget.authState.changePassword(
         currentPassword,
         newPassword,
       );
@@ -652,7 +653,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
     
     try {
-      await _authState.storageService.clearCache();
+      await widget.authState.storageService.clearCache();
       
       setState(() {
         _isLoading = false;
@@ -718,7 +719,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
     
     try {
-      await _authState.logout();
+      await widget.authState.logout();
     } catch (e) {
       // Errors during logout are handled by AuthState
     }
