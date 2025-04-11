@@ -1,66 +1,79 @@
 #!/bin/bash
 
-# Create root project directory
-mkdir -p notetaker_backend
 
-# Create directory structure
-mkdir -p notetaker_backend/src/controllers
-mkdir -p notetaker_backend/src/middleware
-mkdir -p notetaker_backend/src/models
-mkdir -p notetaker_backend/src/routes
-mkdir -p notetaker_backend/src/services
-mkdir -p notetaker_backend/src/utils
-mkdir -p notetaker_backend/src/config
-mkdir -p notetaker_backend/tests
+cd backend
 
-# Create main application files
-touch notetaker_backend/src/app.js
-touch notetaker_backend/src/server.js
-touch notetaker_backend/.env.example
-touch notetaker_backend/.gitignore
-touch notetaker_backend/package.json
+# Create empty .env and .gitignore files
+touch .env
+echo "node_modules
+.env
+.DS_Store" > .gitignore
 
-# Create config files
-touch notetaker_backend/src/config/firebase.config.js
-touch notetaker_backend/src/config/app.config.js
-touch notetaker_backend/src/config/tier.config.js
+# Create empty server.js file
+touch server.js
 
-# Create controller files
-touch notetaker_backend/src/controllers/auth.controller.js
-touch notetaker_backend/src/controllers/user.controller.js
-touch notetaker_backend/src/controllers/module.controller.js
-touch notetaker_backend/src/controllers/note.controller.js
-touch notetaker_backend/src/controllers/media.controller.js
+# Create subdirectories and their files
+mkdir -p config
+touch config/firebase.js
 
-# Create middleware files
-touch notetaker_backend/src/middleware/auth.middleware.js
-touch notetaker_backend/src/middleware/error.middleware.js
-touch notetaker_backend/src/middleware/upload.middleware.js
-touch notetaker_backend/src/middleware/validation.middleware.js
+mkdir -p middleware
+touch middleware/auth.js
+touch middleware/validation.js
+touch middleware/tierLimits.js
+touch middleware/errorHandler.js
+touch middleware/rateLimiter.js
+touch middleware/fileUpload.js
 
-# Create route files
-touch notetaker_backend/src/routes/auth.routes.js
-touch notetaker_backend/src/routes/user.routes.js
-touch notetaker_backend/src/routes/module.routes.js
-touch notetaker_backend/src/routes/note.routes.js
-touch notetaker_backend/src/routes/media.routes.js
+mkdir -p routes
+touch routes/auth.js
+touch routes/users.js
+touch routes/modules.js
+touch routes/notes.js
+touch routes/tags.js
+touch routes/images.js
 
-# Create service files
-touch notetaker_backend/src/services/auth.service.js
-touch notetaker_backend/src/services/user.service.js
-touch notetaker_backend/src/services/module.service.js
-touch notetaker_backend/src/services/note.service.js
-touch notetaker_backend/src/services/media.service.js
-touch notetaker_backend/src/services/firebase.service.js
-touch notetaker_backend/src/services/storage.service.js
+mkdir -p controllers
+touch controllers/authController.js
+touch controllers/userController.js
+touch controllers/moduleController.js
+touch controllers/noteController.js
+touch controllers/tagController.js
+touch controllers/imageController.js
 
-# Create utility files
-touch notetaker_backend/src/utils/response.util.js
-touch notetaker_backend/src/utils/logger.util.js
-touch notetaker_backend/src/utils/validators.util.js
-touch notetaker_backend/src/utils/file.util.js
+mkdir -p utils
+touch utils/jwt.js
+touch utils/password.js
+touch utils/validators.js
+touch utils/logger.js
 
-# Create README.md with project info
-touch notetaker_backend/README.md
+# Create a basic package.json file
+cat > package.json << EOF
+{
+  "name": "notes-app-backend",
+  "version": "1.0.0",
+  "description": "Backend for the notes application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
+    "firebase-admin": "^11.8.0",
+    "joi": "^17.9.2",
+    "jsonwebtoken": "^9.0.0",
+    "multer": "^1.4.5-lts.1",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
+EOF
 
-echo "Backend directory structure created successfully!"
+echo "Directory structure created successfully!"
