@@ -5,7 +5,12 @@ import '../state/auth_state.dart';
 import '../state/tags_state.dart';
 
 class AppDrawer extends StatefulWidget {
-  const AppDrawer({Key? key}) : super(key: key);
+  final AuthState authState;
+  
+  const AppDrawer({
+    Key? key, 
+    required this.authState,
+  }) : super(key: key);
 
   @override
   State<AppDrawer> createState() => _AppDrawerState();
@@ -22,13 +27,10 @@ class _AppDrawerState extends State<AppDrawer> {
   }
   
   void _initializeTagsState() async {
-    // Get auth state
-    final authState = AuthState.of(context);
-    
-    // Create tags state
+    // Create tags state using the passed authState
     _tagsState = TagsState(
-      apiService: authState.apiService,
-      storageService: authState.storageService,
+      apiService: widget.authState.apiService,
+      storageService: widget.authState.storageService,
     );
     
     // Load tags
@@ -56,8 +58,7 @@ class _AppDrawerState extends State<AppDrawer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final authState = AuthState.of(context);
-    final user = authState.user;
+    final user = widget.authState.user;
     
     return Drawer(
       child: Column(
@@ -214,7 +215,7 @@ class _AppDrawerState extends State<AppDrawer> {
               
               if (confirmed == true) {
                 // Logout user
-                await authState.logout();
+                await widget.authState.logout();
               }
             },
           ),

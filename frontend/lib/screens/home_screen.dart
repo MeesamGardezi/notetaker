@@ -12,8 +12,13 @@ import '../widgets/note_tile.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? searchQuery;
+  final AuthState authState;
   
-  const HomeScreen({Key? key, this.searchQuery}) : super(key: key);
+  const HomeScreen({
+    Key? key, 
+    this.searchQuery,
+    required this.authState,
+  }) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -53,18 +58,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
   
   void _initializeStates() async {
-    // Get auth state
-    final authState = AuthState.of(context);
-    
-    // Create states
+    // Create states using the passed authState
     _modulesState = ModulesState(
-      apiService: authState.apiService,
-      storageService: authState.storageService,
+      apiService: widget.authState.apiService,
+      storageService: widget.authState.storageService,
     );
     
     _notesState = NotesState(
-      apiService: authState.apiService,
-      storageService: authState.storageService,
+      apiService: widget.authState.apiService,
+      storageService: widget.authState.storageService,
     );
     
     // Load data
@@ -128,6 +130,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     });
   }
   
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+    );
+  }
+  
   Widget _buildSearchResults() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -164,16 +180,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       );
     }
     
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _searchResults.length,
-      itemBuilder: (context, index) {
-        final note = _searchResults[index];
-        return NoteTile(
-          note: note,
-          onTap: () => context.push('/notes/${note.id}'),
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Search Results'),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: _searchResults.length,
+            itemBuilder: (context, index) {
+              final note = _searchResults[index];
+              return NoteTile(
+                note: note,
+                onTap: () => context.push('/notes/${note.id}'),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
   
@@ -225,34 +249,45 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         // Only show non-archived modules
         final activeModules = modules.where((m) => !m.isArchived).toList();
         
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: activeModules.length + 1, // +1 for add button
-          itemBuilder: (context, index) {
-            if (index == activeModules.length) {
-              // Last item is add button
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: OutlinedButton(
-                  onPressed: _showAddModuleDialog,
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add),
-                      SizedBox(width: 8),
-                      Text('Add Module'),
-                    ],
-                  ),
-                ),
-              );
-            }
-            
-            final module = activeModules[index];
-            return ModuleTile(
-              module: module,
-              onTap: () => context.push('/modules/${module.id}'),
-            );
-          },
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader('Your Modules'),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: activeModules.length + 1, // +1 for add button
+                itemBuilder: (context, index) {
+                  if (index == activeModules.length) {
+                    // Last item is add button
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 16, top: 8),
+                      child: InkWell(
+                        onTap: _showAddModuleDialog,
+                        child: const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add),
+                              SizedBox(width: 8),
+                              Text('Add Module'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  
+                  final module = activeModules[index];
+                  return ModuleTile(
+                    module: module,
+                    onTap: () => context.push('/modules/${module.id}'),
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );
@@ -297,16 +332,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           );
         }
         
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: notes.length,
-          itemBuilder: (context, index) {
-            final note = notes[index];
-            return NoteTile(
-              note: note,
-              onTap: () => context.push('/notes/${note.id}'),
-            );
-          },
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader('Recently Updated'),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: notes.length,
+                itemBuilder: (context, index) {
+                  final note = notes[index];
+                  return NoteTile(
+                    note: note,
+                    onTap: () => context.push('/notes/${note.id}'),
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );
@@ -351,16 +394,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           );
         }
         
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: notes.length,
-          itemBuilder: (context, index) {
-            final note = notes[index];
-            return NoteTile(
-              note: note,
-              onTap: () => context.push('/notes/${note.id}'),
-            );
-          },
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader('Starred Notes'),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: notes.length,
+                itemBuilder: (context, index) {
+                  final note = notes[index];
+                  return NoteTile(
+                    note: note,
+                    onTap: () => context.push('/notes/${note.id}'),
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );
@@ -435,6 +486,105 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         ],
       ),
     );
+  }
+  
+  void _showModuleSelectionForNewNote() {
+    final modules = _modulesState.modules.value
+        .where((m) => !m.isArchived)
+        .toList();
+    
+    if (modules.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No active modules found'),
+        ),
+      );
+      return;
+    }
+    
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Select a module for your note',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          const Divider(),
+          Expanded(
+            child: ListView.builder(
+              itemCount: modules.length,
+              itemBuilder: (context, index) {
+                final module = modules[index];
+                
+                // Parse module color if available
+                Color? moduleColor;
+                if (module.color != null && module.color!.startsWith('#')) {
+                  moduleColor = Color(int.parse(module.color!.substring(1, 7), radix: 16) + 0xFF000000);
+                }
+                
+                return ListTile(
+                  leading: Icon(
+                    Icons.folder,
+                    color: moduleColor,
+                  ),
+                  title: Text(module.title),
+                  subtitle: module.description != null
+                      ? Text(
+                          module.description!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      : null,
+                  onTap: () {
+                    Navigator.pop(context);
+                    
+                    // Create a new note in the selected module
+                    _createNewNote(module.id);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  void _createNewNote(String moduleId) async {
+    // Show loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Creating new note...'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+    
+    try {
+      // Create a new note
+      final note = await _notesState.createNote(
+        moduleId,
+        'New Note',
+      );
+      
+      if (note != null && mounted) {
+        // Navigate to the new note
+        context.push('/notes/${note.id}');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to create note: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
   
   @override
@@ -572,99 +722,5 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             )
           : null,
     );
-  }
-  
-  void _showModuleSelectionForNewNote() {
-    final modules = _modulesState.modules.value
-        .where((m) => !m.isArchived)
-        .toList();
-    
-    if (modules.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No active modules found'),
-        ),
-      );
-      return;
-    }
-    
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Select a module for your note',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ),
-          const Divider(),
-          Expanded(
-            child: ListView.builder(
-              itemCount: modules.length,
-              itemBuilder: (context, index) {
-                final module = modules[index];
-                return ListTile(
-                  leading: Icon(
-                    Icons.folder,
-                    color: module.color != null
-                        ? Color(int.parse(module.color!.substring(1, 7), radix: 16) + 0xFF000000)
-                        : null,
-                  ),
-                  title: Text(module.title),
-                  subtitle: module.description != null
-                      ? Text(
-                          module.description!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                      : null,
-                  onTap: () {
-                    Navigator.pop(context);
-                    
-                    // Create a new note in the selected module
-                    _createNewNote(module.id);
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  void _createNewNote(String moduleId) async {
-    // Show loading indicator
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Creating new note...'),
-        duration: Duration(seconds: 1),
-      ),
-    );
-    
-    try {
-      // Create a new note
-      final note = await _notesState.createNote(
-        moduleId,
-        'New Note',
-      );
-      
-      if (note != null && mounted) {
-        // Navigate to the new note
-        context.push('/notes/${note.id}');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to create note: ${e.toString()}'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
-    }
   }
 }

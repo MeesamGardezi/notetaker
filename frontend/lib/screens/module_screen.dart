@@ -10,8 +10,13 @@ import '../widgets/note_tile.dart';
 
 class ModuleScreen extends StatefulWidget {
   final String moduleId;
+  final AuthState authState;
   
-  const ModuleScreen({Key? key, required this.moduleId}) : super(key: key);
+  const ModuleScreen({
+    Key? key, 
+    required this.moduleId,
+    required this.authState,
+  }) : super(key: key);
 
   @override
   State<ModuleScreen> createState() => _ModuleScreenState();
@@ -39,18 +44,15 @@ class _ModuleScreenState extends State<ModuleScreen> {
   }
   
   void _initializeStates() async {
-    // Get auth state
-    final authState = AuthState.of(context);
-    
-    // Create states
+    // Create states using the passed authState
     _modulesState = ModulesState(
-      apiService: authState.apiService,
-      storageService: authState.storageService,
+      apiService: widget.authState.apiService,
+      storageService: widget.authState.storageService,
     );
     
     _notesState = NotesState(
-      apiService: authState.apiService,
-      storageService: authState.storageService,
+      apiService: widget.authState.apiService,
+      storageService: widget.authState.storageService,
     );
     
     // Load data
@@ -133,6 +135,20 @@ class _ModuleScreenState extends State<ModuleScreen> {
     
     _notesState.includeArchived.value = _showArchived;
     await _notesState.loadModuleNotes(widget.moduleId);
+  }
+  
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+    );
   }
   
   void _showAddNoteDialog() {
@@ -651,19 +667,72 @@ class _ModuleScreenState extends State<ModuleScreen> {
           );
         }
         
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: notes.length,
-          itemBuilder: (context, index) {
-            final note = notes[index];
-            return NoteTile(
-              note: note,
-              onTap: () => context.push('/notes/${note.id}'),
-              onStarTap: () => _toggleNoteStar(note),
-              onArchiveTap: () => _toggleNoteArchive(note),
-              onDeleteTap: () => _showDeleteNoteDialog(note),
-            );
-          },
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Module details card
+            if (_module != null)
+              Card(
+                margin: const EdgeInsets.all(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_module!.description != null && _module!.description!.isNotEmpty) ...[
+                        Text(
+                          'Description',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(_module!.description!),
+                        const Divider(height: 24),
+                      ],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Notes: ${_module!.noteCount}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            _showArchived ? 'Showing archived' : 'Hiding archived',
+                            style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+            _buildSectionHeader('Notes'),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: notes.length,
+                itemBuilder: (context, index) {
+                  final note = notes[index];
+                  return NoteTile(
+                    note: note,
+                    onTap: () => context.push('/notes/${note.id}'),
+                    onStarTap: () => _toggleNoteStar(note),
+                    onArchiveTap: () => _toggleNoteArchive(note),
+                    onDeleteTap: () => _showDeleteNoteDialog(note),
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );
@@ -705,19 +774,27 @@ class _ModuleScreenState extends State<ModuleScreen> {
       );
     }
     
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _searchResults.length,
-      itemBuilder: (context, index) {
-        final note = _searchResults[index];
-        return NoteTile(
-          note: note,
-          onTap: () => context.push('/notes/${note.id}'),
-          onStarTap: () => _toggleNoteStar(note),
-          onArchiveTap: () => _toggleNoteArchive(note),
-          onDeleteTap: () => _showDeleteNoteDialog(note),
-        );
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Search Results'),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: _searchResults.length,
+            itemBuilder: (context, index) {
+              final note = _searchResults[index];
+              return NoteTile(
+                note: note,
+                onTap: () => context.push('/notes/${note.id}'),
+                onStarTap: () => _toggleNoteStar(note),
+                onArchiveTap: () => _toggleNoteArchive(note),
+                onDeleteTap: () => _showDeleteNoteDialog(note),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
