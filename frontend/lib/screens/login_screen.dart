@@ -6,8 +6,13 @@ import '../widgets/custom_app_bar.dart';
 
 class LoginScreen extends StatefulWidget {
   final String? redirectPath;
+  final AuthState authState;
   
-  const LoginScreen({Key? key, this.redirectPath}) : super(key: key);
+  const LoginScreen({
+    Key? key, 
+    this.redirectPath, 
+    required this.authState
+  }) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -45,9 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
       final email = _emailController.text.trim();
       final password = _passwordController.text;
       
-      // Get auth state and attempt login
-      final authState = AuthState.of(context);
-      final success = await authState.login(email, password);
+      // Use widget.authState instead of AuthState.of(context)
+      final success = await widget.authState.login(email, password);
       
       if (!mounted) return;
       

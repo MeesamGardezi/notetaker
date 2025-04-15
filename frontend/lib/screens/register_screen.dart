@@ -5,7 +5,12 @@ import '../utils/validators.dart';
 import '../widgets/custom_app_bar.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  final AuthState authState;
+  
+  const RegisterScreen({
+    Key? key,
+    required this.authState
+  }) : super(key: key);
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -49,9 +54,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final email = _emailController.text.trim();
       final password = _passwordController.text;
       
-      // Get auth state and attempt registration
-      final authState = AuthState.of(context);
-      final success = await authState.register(email, password, displayName);
+      // Use widget.authState instead of AuthState.of(context)
+      final success = await widget.authState.register(email, password, displayName);
       
       if (!mounted) return;
       

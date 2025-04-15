@@ -9,8 +9,13 @@ import '../widgets/note_tile.dart';
 
 class TagScreen extends StatefulWidget {
   final String tagId;
+  final AuthState authState;
   
-  const TagScreen({Key? key, required this.tagId}) : super(key: key);
+  const TagScreen({
+    Key? key, 
+    required this.tagId,
+    required this.authState
+  }) : super(key: key);
 
   @override
   State<TagScreen> createState() => _TagScreenState();
@@ -32,13 +37,10 @@ class _TagScreenState extends State<TagScreen> {
   }
   
   void _initializeState() async {
-    // Get auth state
-    final authState = AuthState.of(context);
-    
-    // Create state
+    // Create state using the passed authState
     _tagsState = TagsState(
-      apiService: authState.apiService,
-      storageService: authState.storageService,
+      apiService: widget.authState.apiService,
+      storageService: widget.authState.storageService,
     );
     
     // Load data
@@ -421,7 +423,7 @@ class _TagScreenState extends State<TagScreen> {
         // Notes list
         Expanded(
           child: ValueListenableBuilder<List<NoteModel>>(
-            valueListenable: _tagsState.tagNotes,
+            valueListenable: _tagsState.taggedNotes,
             builder: (context, notes, child) {
               if (notes.isEmpty) {
                 return Center(

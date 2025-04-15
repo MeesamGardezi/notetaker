@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import '../state/auth_state.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  final AuthState authState;
+  
+  const SplashScreen({
+    Key? key,
+    required this.authState
+  }) : super(key: key);
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -52,11 +56,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     
     if (!mounted) return;
     
-    // Get auth state
-    final authState = Provider.of<AuthState>(context, listen: false);
-    
-    // Check if user is logged in and navigate accordingly
-    if (authState.isLoggedIn) {
+    // Check if user is logged in using widget.authState directly
+    if (widget.authState.isLoggedIn) {
       context.go('/home');
     } else {
       context.go('/login');

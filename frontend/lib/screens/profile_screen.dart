@@ -4,15 +4,18 @@ import '../state/auth_state.dart';
 import '../widgets/custom_app_bar.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  final AuthState authState;
+  
+  const ProfileScreen({
+    Key? key,
+    required this.authState
+  }) : super(key: key);
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late AuthState _authState;
-  
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _displayNameController;
   
@@ -27,12 +30,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
   
   void _initializeState() {
-    // Get auth state
-    _authState = AuthState.of(context);
-    
     // Initialize controllers
     _displayNameController = TextEditingController(
-      text: _authState.user?.displayName ?? '',
+      text: widget.authState.user?.displayName ?? '',
     );
   }
   
@@ -50,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final displayName = _displayNameController.text.trim();
       
-      final success = await _authState.updateProfile(
+      final success = await widget.authState.updateProfile(
         displayName: displayName,
       );
       
@@ -86,7 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         showBackButton: true,
       ),
       body: ValueListenableBuilder<UserModel?>(
-        valueListenable: _authState,
+        valueListenable: widget.authState,
         builder: (context, user, child) {
           if (user == null) {
             return const Center(
